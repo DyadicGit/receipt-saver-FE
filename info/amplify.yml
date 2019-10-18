@@ -1,0 +1,20 @@
+version: 0.1
+env:
+  variables:
+    API_URL: \$API_URL
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - export API_URL=\$API_URL
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*

@@ -1,7 +1,10 @@
 .vscode/*
 .idea/*
 *.iml
-node_modules/*
+node_modules/
+amplify/
+build/
+dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

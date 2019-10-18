@@ -1,0 +1,3 @@
+to pass environment variables to your FE application, that could be accessible thought process.env.MY_CUSTOM_VAR  (my case it's API_URL)
+You must use the technique as described in file amplify.yml, and paste your own to build settings (look at 'build_settings_page.png')
+As well declare them in ... (look at 'env_variable_declaration_in_aws-amplify_console.PNG')

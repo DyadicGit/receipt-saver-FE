@@ -1,4 +1,4 @@
-import env from './env.json';
+import env from './default_env.json';
 
-const baseUrl = process.env.BASE_URL || env.BASE_URL;
+const baseUrl = process.env.API_URL || env.API_URL;
 export const helloWorldApi = baseUrl + '/helloWorld';
