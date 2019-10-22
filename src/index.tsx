@@ -12,9 +12,8 @@ const container = document.getElementById('root');
 
 const appStores$ = merge(userStore.store$).pipe(
   scan((acc, state) => ({ ...acc, ...state })),
-  tap(a => {
-      console.log(process);
-      console.log(a);
+  tap(state => {
+      console.log(state);
   })
 );
 

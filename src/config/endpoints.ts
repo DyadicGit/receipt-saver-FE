@@ -1,4 +1,2 @@
-import env from './default_env.json';
-
-const baseUrl = process.env.API_URL || env.API_URL;
+const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 export const helloWorldApi = baseUrl + '/helloWorld';
