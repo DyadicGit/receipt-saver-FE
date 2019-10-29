@@ -1,21 +1,19 @@
 import { Action } from '../../rxjs-as-redux/RxStore';
 
-const userReducer = (state: any, action: Action) =>
+export default (state: any, action: Action) =>
   ({
-    GITHUB_FOLLOWERS_LOADING: {
+    RECEIPTS_LOADING: {
       ...state,
       isLoading: true
     },
-    GITHUB_FOLLOWERS_LOADED: {
+    RECEIPTS_LOADED: {
       ...state,
       isLoading: false,
-      users: action.payload
+      receipts: action.payload
     },
-    NAME_CHANGED: {
+    RECEIPT_SELECTED: {
       ...state,
       isLoading: false,
-      name: action.payload
+      receiptId: { id: action.payload }
     }
   }[action.type] || state);
-
-export default userReducer;

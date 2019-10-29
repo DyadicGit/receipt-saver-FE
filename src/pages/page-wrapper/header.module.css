@@ -1,0 +1,27 @@
+.backButton {
+    display: inline-block;
+    position: relative;
+    padding: 10px 25px;
+    border: 0.1em solid white;
+    margin: 0.5em;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.backButton:hover {
+    color: black;
+    background-color: white;
+}
+
+@media all and (max-width: 30em) {
+    .backButton {
+        display: block;
+        margin: 0.4em auto;
+    }
+}
+

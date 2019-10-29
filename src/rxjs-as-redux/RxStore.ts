@@ -1,23 +1,20 @@
-import { from, isObservable, Observable, Subject } from 'rxjs';
-import { flatMap, scan, startWith } from 'rxjs/operators';
+import { BehaviorSubject, from, isObservable, Observable } from 'rxjs';
+import { flatMap, scan } from 'rxjs/operators';
 
 export type Action = {
   type: string;
   payload: any;
 };
-export type ActionFn = (any) => Action;
 export type ResolvableAction = {
   type: string;
   payload: Observable<Action>;
 };
-export type ResolvableActionFn = (any) => ResolvableAction;
 
 export const createStore = (initState, reducer) => {
-  const action$ = new Subject();
+  const action$ = new BehaviorSubject(initState);
   return {
     store$: action$.pipe(
       flatMap(action => (isObservable(action) ? action : from([action]))),
-      startWith(initState),
       scan(reducer)
     ),
     actionCreator: func => (...args) => {

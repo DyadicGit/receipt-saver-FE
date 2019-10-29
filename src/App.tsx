@@ -1,51 +1,42 @@
 import React from 'react';
-import './App.css';
+import './pages/page-wrapper/grid.module.css';
 import HelloWorldPage from './pages/HelloWorldPage';
-import UserPage from './pages/user-page/UserPage';
-import flags from './config/flags.json';
-import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter, Route, Redirect, Switch, useLocation } from 'react-router-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import ReceiptList from './pages/receipt-page/ReceiptList';
+import ReceiptView from './pages/receipt-page/ReceiptView';
+import './App.css';
 
-const NavBar = () => (
-  <div className="navbar">
-    <ul>
-      {flags['helloWorldPage'] && (
-        <li>
-          <NavLink exact to="/" activeClassName="selected">
-            Home
-          </NavLink>
-        </li>
-      )}
-      {flags['usersPage'] && (
-        <li>
-          <NavLink to="/users" activeClassName="selected">
-            Users
-          </NavLink>
-        </li>
-      )}
-    </ul>
-  </div>
-);
+const transitionDuration = 1000; // 1s also in page.transition.css
+const timeout = { enter: transitionDuration, exit: transitionDuration };
 
-const App = () => (
-  <Router>
-    <div className="grid-container">
-      <NavBar />
-      <div className="page">
-        <Switch>
-          {flags['helloWorldPage'] && (
-            <Route exact path="/">
-              <HelloWorldPage />
-            </Route>
-          )}
-          {flags['usersPage'] && (
-            <Route path="/users">
-              <UserPage />
-            </Route>
-          )}
+const ReceiptSwitcher = () => {
+  let location = useLocation();
+  return (
+    <TransitionGroup className="transition-group">
+      <CSSTransition key={location.key} classNames="page" timeout={timeout}>
+        <Switch location={location}>
+          <Route exact path="/receipt" component={ReceiptList} />
+          <Route path="/receipt/:id" component={ReceiptView} />
         </Switch>
-      </div>
-    </div>
-  </Router>
-);
+      </CSSTransition>
+    </TransitionGroup>
+  );
+};
 
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/helloWorld" component={HelloWorldPage} />
+        <Route exact path="/">
+          <Redirect to="/receipt" />
+        </Route>
+        <Route path="/receipt*">
+          <ReceiptSwitcher />
+        </Route>
+      </Switch>
+    </BrowserRouter>
+  );
+};
 export default App;

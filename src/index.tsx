@@ -4,16 +4,14 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { scan, tap } from 'rxjs/operators';
 import App from './App';
-import { userStore } from './rxjs-as-redux/storeInstances';
-import { merge } from 'rxjs';
-import { StateContext } from './rxjs-as-redux/storeInstances';
+import { receiptStore, StateContext } from './rxjs-as-redux/storeInstances';
+import { merge, Observable } from 'rxjs';
 
 const container = document.getElementById('root');
-
-const appStores$ = merge(userStore.store$).pipe(
+const appStores$: Observable<any> = merge(receiptStore.store$).pipe(
   scan((acc, state) => ({ ...acc, ...state })),
   tap(state => {
-      console.log(state);
+    console.log(state);
   })
 );
 
