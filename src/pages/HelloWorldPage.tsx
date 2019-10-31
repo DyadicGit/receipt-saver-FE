@@ -10,7 +10,7 @@ export default () => {
   }, []);
   return (
     <>
-      <h1>{text}</h1>
+      <h1 style={{ color: 'white' }}>{text}</h1>
     </>
   );
 };

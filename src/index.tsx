@@ -6,6 +6,7 @@ import { scan, tap } from 'rxjs/operators';
 import App from './App';
 import { receiptStore, StateContext } from './rxjs-as-redux/storeInstances';
 import { merge, Observable } from 'rxjs';
+import PetalSpinner from "./components/PetalSpinner";
 
 const container = document.getElementById('root');
 const appStores$: Observable<any> = merge(receiptStore.store$).pipe(
@@ -18,7 +19,8 @@ const appStores$: Observable<any> = merge(receiptStore.store$).pipe(
 appStores$.subscribe(state =>
   ReactDOM.render(
     <StateContext.Provider value={state}>
-      <App />
+      {state && state.isLoading && <PetalSpinner/>}
+      <App state={state}/>
     </StateContext.Provider>,
     container
   )

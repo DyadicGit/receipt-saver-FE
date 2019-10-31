@@ -1,18 +1,17 @@
 .pageContainer {
-    background-color: #282c34;
+    composes: gradientBackground from global;
     font-size: calc(10px + 2vmin);
     color: white;
     display: grid;
     grid-template-columns: 5vw 90vw 5vw;
     grid-template-rows: 100px calc(100vh - 200px) 100px;
     grid-template-areas:
-            ". navbar navbar ."
-            ". pageBody pageBody ."
-            ". . . .";
+            ". navbar ."
+            ". pageBody ."
+            ". . .";
 }
 .pageBody {
     grid-area: pageBody;
-    justify-self: center;
 }
 .nav {
     grid-area: navbar;
@@ -20,14 +19,20 @@
     grid-template-columns: 130px 1fr;
     grid-gap: 10px;
 }
-.nav__backButton {
+.nav .backButton {
     grid-column: 1/2;
-    position: relative;
 }
-.nav__header {
+.nav .backButton .wider {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+.nav .title {
     grid-column-start: 2;
-    justify-self: center;
-    margin-right: 10vw;
+    margin-left: 5vw;
     color: white;
 }
 

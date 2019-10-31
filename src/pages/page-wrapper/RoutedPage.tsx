@@ -1,19 +1,20 @@
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import cx from 'classnames';
+import DoubleArrow from '../../components/DoubleArrows';
 import './page.transition.css';
 import gridStyles from './grid.module.css';
-import styles from './header.module.css';
 
 const NavBar = ({ pageTitle, isPrev }) => (
   <div className={gridStyles.nav}>
     {isPrev && (
-      <div className={gridStyles.nav__backButton}>
-        <Link className={styles.backButton} to={'/receipt'}>
-          back
+      <div className={gridStyles.backButton}>
+        <Link className={gridStyles.wider} to={'/receipt'}>
+          <DoubleArrow />
         </Link>
       </div>
     )}
-    <h3 className={gridStyles.nav__header}>{pageTitle}</h3>
+    <h3 className={gridStyles.title}>{pageTitle}</h3>
   </div>
 );
 
@@ -23,14 +24,15 @@ type Props = {
   background?: string;
   location: any;
 };
-const RoutedPage = ({ children, background, pageTitle, location: { pathname } }: Props) => {
+const RoutedPage = ({ children, pageTitle, location: { pathname } }: Props) => {
   const isPrev = pathname !== '/receipt';
-
   return (
-    <div className={`page ${isPrev ? 'page--prev' : ''}`}>
-      <div className={gridStyles.pageContainer} style={{ backgroundColor: background }}>
+    <div className={cx('page', isPrev && 'page--prev')}>
+      <div className={gridStyles.pageContainer}>
         <NavBar pageTitle={pageTitle} isPrev={isPrev} />
-        <div className={gridStyles.pageBody}>{children}</div>
+        <div className={gridStyles.pageBody}>
+          {children}
+        </div>
       </div>
     </div>
   );
