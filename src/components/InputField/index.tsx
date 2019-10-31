@@ -14,7 +14,7 @@ const InputField = ({ text, value, setter, type = 'text', disabled = false }: Fi
   return (
     <div className={styles.inputField}>
       <label htmlFor={id}>{text}
-        <input id={id} type={type} value={value} onChange={e => setter(e.target.value)} disabled={false}/>
+        <input id={id} type={type} value={value} onChange={e => setter(e.target.value)} disabled={disabled}/>
       </label>
     </div>
   );
