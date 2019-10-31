@@ -14,6 +14,6 @@ export default (state: any, action: Action) =>
     RECEIPT_SELECTED: {
       ...state,
       isLoading: false,
-      receiptId: { id: action.payload }
+      selectedReceipt: { id: action.payload }
     }
   }[action.type] || state);

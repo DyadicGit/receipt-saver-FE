@@ -1,0 +1,64 @@
+.inputField {
+    position: relative;
+    margin-top: 1rem;
+}
+.inputField input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #9e9e9e;
+    border-radius: 0;
+    outline: none;
+    height: 3rem;
+    width: 100%;
+    font-size: 1rem;
+    margin: 0 0 15px 0;
+    padding: 0;
+    box-shadow: none;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    transition: all .3s;
+    color: white;
+}
+.inputField input:focus {
+    border-bottom: 1px solid #26a69a;
+    box-shadow: 0 1px 0 0 #26a69a;
+    -webkit-appearance: none;
+}
+.inputField input[type=number]::-webkit-inner-spin-button,
+.inputField input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.inputField input[type=date]::-webkit-inner-spin-button,
+.inputField input[type=date]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.inputField input:-webkit-autofill,
+.inputField input:-webkit-autofill:hover,
+.inputField input:-webkit-autofill:focus,
+.inputField textarea:-webkit-autofill,
+.inputField textarea:-webkit-autofill:hover,
+.inputField textarea:-webkit-autofill:focus,
+.inputField select:-webkit-autofill,
+.inputField select:-webkit-autofill:hover,
+.inputField select:-webkit-autofill:focus {
+    border-bottom: 2px solid #deca52;
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0 1000px #000 inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+.inputField label {
+    color: #9e9e9e;
+    font-size: 1rem;
+    cursor: text;
+    -webkit-transition: .2s ease-out;
+    -moz-transition: .2s ease-out;
+    -o-transition: .2s ease-out;
+    -ms-transition: .2s ease-out;
+    transition: .2s ease-out;
+}
+.inputField label:focus-within {
+    color: #26a69a;
+}

@@ -1,17 +1,22 @@
 import React from 'react';
 import './pages/page-wrapper/grid.module.css';
 import HelloWorldPage from './pages/HelloWorldPage';
-import { BrowserRouter, Route, Redirect, Switch, useLocation } from 'react-router-dom';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import ReceiptList from './pages/receipt-page/ReceiptList';
+import { BrowserRouter, Redirect, Route, Switch, useLocation, useHistory } from 'react-router-dom';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import ReceiptList from './pages/receipt-page/List/ReceiptList';
 import ReceiptView from './pages/receipt-page/ReceiptView';
-import './App.css';
+import Page404 from './pages/Page404';
 
 const transitionDuration = 1000; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
 
-const ReceiptSwitcher = () => {
-  let location = useLocation();
+const ReceiptSwitcher = ({receipts}) => {
+  const location = useLocation();
+  const history = useHistory();
+  const receiptId = location.pathname.replace(/\/receipt\/|\/receipt/, '');
+  if (receipts.order.length && receiptId && !receipts.byId[receiptId]) {
+    history.push('/404')
+  }
   return (
     <TransitionGroup className="transition-group">
       <CSSTransition key={location.key} classNames="page" timeout={timeout}>
@@ -24,7 +29,7 @@ const ReceiptSwitcher = () => {
   );
 };
 
-const App = () => {
+const App = ({state}) => {
   return (
     <BrowserRouter>
       <Switch>
@@ -33,7 +38,13 @@ const App = () => {
           <Redirect to="/receipt" />
         </Route>
         <Route path="/receipt*">
-          <ReceiptSwitcher />
+          <ReceiptSwitcher receipts={state.receipts}/>
+        </Route>
+        <Route path="/404">
+          <Page404 code="404"/>
+        </Route>
+        <Route>
+          <Page404 code="404"/>
         </Route>
       </Switch>
     </BrowserRouter>

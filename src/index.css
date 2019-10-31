@@ -1,10 +1,18 @@
+.gradientBackground {
+  background: -webkit-radial-gradient(center top, farthest-side, #09791a94 6%, #000000 33%, #6879099e 91%, #00000030), #000000;
+  background-size: 800px 200px;
+  background-position: center 1px;
+  background-repeat: no-repeat;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
 }
 
 code {

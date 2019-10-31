@@ -2,13 +2,13 @@ import { ajax } from 'rxjs/ajax';
 import { map } from 'rxjs/operators';
 import { receiptStore } from '../../rxjs-as-redux/storeInstances';
 import { Action, ResolvableAction } from '../../rxjs-as-redux/RxStore';
-import { receiptApi } from "../../config/endpoints";
+import { getAllReceiptsApi } from '../../config/endpoints';
 
 type NoParams = () => ResolvableAction;
 export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
   return {
     type: 'RECEIPTS_LOADING',
-    payload: ajax(receiptApi).pipe(
+    payload: ajax(getAllReceiptsApi).pipe(
       map(({ response: receipts }) => ({
         type: 'RECEIPTS_LOADED',
         payload: receipts

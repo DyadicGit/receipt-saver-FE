@@ -10,6 +10,11 @@ export interface RequestReceipt {
   itemName: string;
   buyDate?: number;
   totalPrice: number;
-  warrantyPeriod: number, // in seconds
+  warrantyPeriod: number; // in seconds
   userID: string;
+}
+
+export interface NormalizedReceipts {
+  byId: { [id: string]: Receipt };
+  order: string[];
 }
