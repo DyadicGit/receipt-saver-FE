@@ -50,8 +50,7 @@ const ReceiptPage = () => {
         <RoutedPage pageTitle="Receipt list">
           {isLoading && <p>Loading...</p>}
           <ReceiptList receipts={receipts} history={history}/>
-          {/*<input type="button" value="Create" className={cx(buttonStyles.blackAndWhite, buttonStyles.fixedBottomCorner)} onClick={handleCreate} />*/}
-          <RoundButton/>
+          <RoundButton onClick={handleCreate}/>
         </RoutedPage>
       )}
     </StateContext.Consumer>

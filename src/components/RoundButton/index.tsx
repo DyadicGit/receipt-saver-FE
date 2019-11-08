@@ -2,6 +2,12 @@ import React from 'react';
 import styles from './RoundButton.module.css';
 import cx from 'classnames';
 
-export default () => {
-  return <a className={cx(styles.fixedBottomCorner, styles.roundButton)}>+</a>;
+type Props = { onClick?: () => void };
+
+export default ({ onClick }: Props) => {
+  return (
+    <button className={cx(styles.fixedBottomCorner, styles.roundButton)} onClick={onClick}>
+      <span className={styles.largeAndCentered}>+</span>
+    </button>
+  );
 };
