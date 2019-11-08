@@ -7,8 +7,10 @@ import cx from 'classnames';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import styles from './ReceiptList.module.css';
 
+export const toNumber = (input: string | number): number => (typeof input === 'string') ? parseInt(input, 10) : input;
+
 const receiptLine = (history: any, receipt: Receipt) => {
-  const date = new Date(receipt.buyDate || receipt.creationDate);
+  const date = new Date(toNumber(receipt.buyDate || receipt.creationDate));
   return (
     <li
       key={receipt.id}

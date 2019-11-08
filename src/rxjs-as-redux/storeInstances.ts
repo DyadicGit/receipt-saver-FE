@@ -12,6 +12,7 @@ export interface InitialState {
   receipts: NormalizedReceipts;
   selectedReceipt: string | null;
 }
+
 const initState: InitialState = { isLoading: true, receipts: {byId: {}, order: []}, selectedReceipt: null };
 
 const initAsyncState: Observable<InitialState> = ajax(getAllReceiptsApi).pipe(

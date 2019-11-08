@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { StateContext } from '../../rxjs-as-redux/storeInstances';
 import { Receipt } from '../../config/DomainTypes';
 import { useParams } from 'react-router-dom';
@@ -6,7 +7,10 @@ import cx from 'classnames';
 import RoutedPage from '../page-wrapper/RoutedPage';
 import Field from '../../components/InputField';
 import buttonStyles from '../../components/Button/Button.module.css';
+import { deleteReceipt, editReceipt } from "./receiptActions";
+import { toNumber } from "./List/ReceiptList";
 const monthsToSeconds = months => parseInt(months, 10) * 12 * 24 * 60 * 60;
+const secondsToMonths = seconds => parseInt(seconds, 10) / 12 / 24 / 60 / 60;
 
 type Mode = 'EDIT' | 'VIEW';
 const isDisabled = { EDIT: false, VIEW: true };
@@ -48,17 +52,25 @@ type ReceiptFormProps = {
   mode: Mode;
   onEditClick: () => void;
 };
-const ReceiptForm = ({ receipt, mode, onEditClick: handleEditClick }: ReceiptFormProps) => {
+const ReceiptForm = ({ receipt, mode, onEditClick: toggleMode }: ReceiptFormProps) => {
   const [itemName, setItemName] = useState(receipt.itemName || '');
   const [shopName, setShopName] = useState(receipt.shopName || '');
-  const [date, setDate] = useState(new Date(receipt.buyDate || receipt.creationDate || Date()).toISOString().substr(0, 10));
+  const [date, setDate] = useState(new Date(toNumber(receipt.buyDate || receipt.creationDate) || Date()).toISOString().substr(0, 10));
   const [image, setImage] = useState(receipt.image || '');
-  const [totalPrice, setTotalPrice] = useState(receipt.totalPrice || '');
-  const [warrantyPeriod, setWarrantyPeriod] = useState(receipt.warrantyPeriod || '');
+  const [totalPrice, setTotalPrice] = useState(receipt.totalPrice || 0);
+  const [warrantyPeriod, setWarrantyPeriod] = useState(secondsToMonths(receipt.warrantyPeriod) || 0);
+  const history = useHistory();
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
+    // console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
+    const newReceipt: Receipt = {...receipt, itemName, shopName, buyDate: new Date(date).getTime(), image, totalPrice, warrantyPeriod: monthsToSeconds(warrantyPeriod)};
+    editReceipt(newReceipt);
+    toggleMode();
+  };
+  const handleDelete = () => {
+    history.push(`/receipt`);
+    deleteReceipt(receipt.id)
   };
 
   return (
@@ -73,14 +85,14 @@ const ReceiptForm = ({ receipt, mode, onEditClick: handleEditClick }: ReceiptFor
       <br />
       <br />
       {mode === 'EDIT' && <input type="submit" value="Submit" className={buttonStyles.blackAndWhite} />}
-      {mode === 'VIEW' && <input type="button" value="Edit" className={buttonStyles.blackAndWhite} onClick={handleEditClick} />}
+      {mode === 'VIEW' && <input type="button" value="Edit" className={buttonStyles.blackAndWhite} onClick={toggleMode} />}
       {mode === 'VIEW' && (
         <input
           type="button"
           value="Delete"
           className={cx(buttonStyles.blackAndWhite, buttonStyles.red)}
           style={{ float: 'right' }}
-          onClick={() => console.log('send delete api call')}
+          onClick={handleDelete}
         />
       )}
     </form>
