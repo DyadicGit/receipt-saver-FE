@@ -2,7 +2,7 @@ import { ajax } from 'rxjs/ajax';
 import { map } from 'rxjs/operators';
 import { receiptStore } from '../../rxjs-as-redux/storeInstances';
 import { Action, ResolvableAction } from '../../rxjs-as-redux/RxStore';
-import { deleteReceiptApi, editReceiptApi, getAllReceiptsApi } from '../../config/endpoints';
+import { createReceiptApi, deleteReceiptApi, editReceiptApi, getAllReceiptsApi } from '../../config/endpoints';
 import { Receipt } from "../../config/DomainTypes";
 
 type NoParams = () => ResolvableAction;
@@ -18,7 +18,7 @@ export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
   };
 });
 
-type SelectReceipt = (receiptId: string) => Action;
+type SelectReceipt = (receiptId: string | null) => Action;
 export const selectReceipt: SelectReceipt = receiptStore.actionCreator((receiptId: string) => ({
   type: 'RECEIPT_SELECTED',
   payload: receiptId
@@ -36,6 +36,18 @@ export const editReceipt: EditReceipt = receiptStore.actionCreator((editedReceip
     )
   }
 });
+type CreateReceipt = (createdReceipt: Receipt) => Action;
+export const createReceipt: CreateReceipt = receiptStore.actionCreator((createdReceipt: Receipt) => {
+  return {
+    type: 'LOADING',
+    payload: ajax.post(createReceiptApi, createdReceipt).pipe(
+      map(({ response: receipt }): Action => ({
+        type: 'RECEIPT_CREATED',
+        payload: receipt
+      }))
+    )
+  }
+});
 
 type DeleteReceipt = (receiptId: string) => Action;
 export const deleteReceipt: DeleteReceipt = receiptStore.actionCreator((receiptId: string) => {
@@ -46,7 +58,7 @@ export const deleteReceipt: DeleteReceipt = receiptStore.actionCreator((receiptI
         if (response.success) {
           return ({
             type: 'RECEIPT_DELETED',
-            payload: {id: receiptId}
+            payload: { id: receiptId }
           });
         } else {
           throw new Error(response.error)

@@ -31,4 +31,14 @@ export default (state: GlobalState, action: Action) =>
         order: state.receipts.order.filter(id => id !== action.payload.id)
       }
     },
+    RECEIPT_CREATED: {
+      ...state,
+      isLoading: false,
+      receipts: {
+        ...state.receipts,
+        byId: { ...state.receipts.byId, [action.payload.id]: action.payload },
+        order: [action.payload.id, ...state.receipts.order]
+      },
+      selectedReceipt: {id: action.payload.id}
+    },
   }[action.type] || state);

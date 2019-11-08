@@ -4,7 +4,7 @@ import HelloWorldPage from './pages/HelloWorldPage';
 import { BrowserRouter, Redirect, Route, Switch, useLocation, useHistory } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ReceiptList from './pages/receipt-page/List/ReceiptList';
-import ReceiptView from './pages/receipt-page/ReceiptView';
+import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
 
 const transitionDuration = 1000; // 1s also in page.transition.css
@@ -14,7 +14,11 @@ const ReceiptSwitcher = ({receipts}) => {
   const location = useLocation();
   const history = useHistory();
   const receiptId = location.pathname.replace(/\/receipt\/|\/receipt/, '');
-  if (receipts.order.length && receiptId && !receipts.byId[receiptId]) {
+  if (
+    location.pathname !== '/receipt/create'
+    && receipts.order.length
+    && receiptId && !receipts.byId[receiptId]
+  ) {
     history.push('/404')
   }
   return (
@@ -22,7 +26,12 @@ const ReceiptSwitcher = ({receipts}) => {
       <CSSTransition key={location.key} classNames="page" timeout={timeout}>
         <Switch location={location}>
           <Route exact path="/receipt" component={ReceiptList} />
-          <Route path="/receipt/:id" component={ReceiptView} />
+          <Route path="/receipt/create">
+            <ReceiptContainer initMode="CREATE"/>
+          </Route>
+          <Route path="/receipt/:id">
+            <ReceiptContainer initMode="VIEW"/>
+          </Route>
         </Switch>
       </CSSTransition>
     </TransitionGroup>
@@ -38,6 +47,9 @@ const App = ({state}) => {
           <Redirect to="/receipt" />
         </Route>
         <Route path="/receipt*">
+          <ReceiptSwitcher receipts={state.receipts}/>
+        </Route>
+        <Route path="/create">
           <ReceiptSwitcher receipts={state.receipts}/>
         </Route>
         <Route path="/404">
