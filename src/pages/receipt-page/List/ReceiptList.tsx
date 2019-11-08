@@ -6,6 +6,7 @@ import { StateContext } from '../../../rxjs-as-redux/storeInstances';
 import cx from 'classnames';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import styles from './ReceiptList.module.css';
+import RoundButton from '../../../components/RoundButton';
 
 export const toNumber = (input: string | number): number => (typeof input === 'string') ? parseInt(input, 10) : input;
 
@@ -39,12 +40,18 @@ const redirectToReceipt = (history: any, receiptId: string) => {
 
 const ReceiptPage = () => {
   const history = useHistory();
+  const handleCreate = () => {
+    console.log('create');
+  };
+
   return (
     <StateContext.Consumer>
       {({ receipts, isLoading }) => (
         <RoutedPage pageTitle="Receipt list">
           {isLoading && <p>Loading...</p>}
           <ReceiptList receipts={receipts} history={history}/>
+          {/*<input type="button" value="Create" className={cx(buttonStyles.blackAndWhite, buttonStyles.fixedBottomCorner)} onClick={handleCreate} />*/}
+          <RoundButton/>
         </RoutedPage>
       )}
     </StateContext.Consumer>

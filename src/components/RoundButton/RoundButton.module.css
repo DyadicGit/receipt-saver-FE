@@ -1,0 +1,100 @@
+.large {
+    font-size: 2em;
+}
+.roundButton {
+    display: inline-block;
+    border-radius: 50%;
+    background-color: rgba(140,140,140,0.75);
+    color: #fff;
+    border: 0 none;
+    padding: 0;
+    text-align: center;
+    width: 3em;
+    height: 3em;
+    line-height: 3em;
+    position: relative;
+    transition: all 0.25s ease-in-out;
+}
+.roundButton:hover, .roundButton:active {
+    background-color: #e44848;
+    color: #fff;
+}
+.roundButton:hover:before {
+    animation: round-button-beat 1.5s ease-out infinite;
+}
+.roundButton:hover:after {
+    animation: round-button-beat 1.5s ease-out 0.4s infinite;
+}
+.roundButton:before,
+.roundButton:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-color: #e44848;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.25s ease-in-out;
+}
+@-moz-keyframes round-button-beat {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@-webkit-keyframes round-button-beat {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@-o-keyframes round-button-beat {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes round-button-beat {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.fixedBottomCorner {
+    position: fixed;
+    bottom: 3vh;
+    right: 4vw;
+}
