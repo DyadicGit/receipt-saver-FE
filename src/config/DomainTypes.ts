@@ -1,3 +1,5 @@
+import { InitialState } from "../rxjs-as-redux/storeInstances";
+
 export interface Receipt extends RequestReceipt {
   id: string;
   creationDate: number;
@@ -17,4 +19,8 @@ export interface RequestReceipt {
 export interface NormalizedReceipts {
   byId: { [id: string]: Receipt };
   order: string[];
+}
+
+export interface GlobalState extends InitialState{
+
 }

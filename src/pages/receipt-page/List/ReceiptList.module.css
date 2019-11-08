@@ -6,7 +6,7 @@
     padding: 1vh 3vw 1vh 3vw;
     position: relative;
 }
-.lineGrid span:nth-child(odd) {
+.lineGrid span:nth-child(even) {
     color: #9db396;
 }
 .lineGrid div {
