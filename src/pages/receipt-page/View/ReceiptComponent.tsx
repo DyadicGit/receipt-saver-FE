@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import cx from 'classnames';
 import { Receipt } from '../../../config/DomainTypes';
-import { toNumber } from '../List/ReceiptList';
 import { createReceipt, deleteReceipt, editReceipt } from '../receiptActions';
 import Field from '../../../components/InputField';
 import buttonStyles from '../../../components/Button/Button.module.css';
 import { Mode } from './ReceiptContainer';
+import { monthsToSeconds, secondsToMonths, toNumber } from "../utils";
 
-const monthsToSeconds = months => parseInt(months, 10) * 12 * 24 * 60 * 60;
-const secondsToMonths = seconds => parseInt(seconds, 10) / 12 / 24 / 60 / 60;
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 
 type ReceiptFormProps = {
@@ -35,7 +33,7 @@ const ReceiptForm = ({ receipt, mode, onEditClick: toggleMode }: ReceiptFormProp
       ...receipt,
       itemName,
       shopName,
-      buyDate: new Date(date).getTime(),
+      buyDate: Date.parse(`${date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       image,
       totalPrice,
       warrantyPeriod: monthsToSeconds(warrantyPeriod)
