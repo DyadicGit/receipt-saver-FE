@@ -16,7 +16,7 @@ const ReceiptSwitcher = ({receipts}) => {
   const receiptId = location.pathname.replace(/\/receipt\/|\/receipt/, '');
   if (
     location.pathname !== '/receipt/create'
-    && receipts.order.length
+    && receipts.order && receipts.order.length
     && receiptId && !receipts.byId[receiptId]
   ) {
     history.push('/404')
