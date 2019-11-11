@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { StateContext } from '../../../rxjs-as-redux/storeInstances';
 import { Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
+import DeletionConfirmModal from './ConfirmationModal';
+import { deleteReceipt } from '../receiptActions';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 
 const ReceiptContainer = ({ initMode }: { initMode?: Mode }) => {
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [pageTitle, setPageTitle] = useState('Receipt Info');
+  const [showConf, setShowConf] = useState(false);
   const fromParams = useParams();
+  const history = useHistory();
+
   const setModeAndPageTitle = (mode: Mode) => {
     if (mode === 'EDIT') {
       setMode('EDIT');
@@ -26,19 +31,23 @@ const ReceiptContainer = ({ initMode }: { initMode?: Mode }) => {
       setPageTitle('Receipt Info');
     }
   };
+  const handleConfirmedDelete = receiptId => {
+    history.push(`/receipt`);
+    deleteReceipt(receiptId);
+  };
 
   return (
     <StateContext.Consumer>
-      {({ receipts, selectedReceipt }) => {
+      {({ receipts, selectedReceipt, isLoading }) => {
         const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
-
         return (
           <>
-            {(receipt || mode === 'CREATE') && (
+            {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
               <RoutedPage pageTitle={pageTitle}>
-                <ReceiptForm receipt={receipt as any} mode={mode} onEditClick={setModeAndPageTitle} />
+                <ReceiptForm receipt={receipt as any} mode={mode} onEditClick={setModeAndPageTitle} onDeleteClick={() => setShowConf(true)} />
               </RoutedPage>
             )}
+            {(receipt && mode === 'VIEW') && <DeletionConfirmModal show={showConf} onConfirm={() => handleConfirmedDelete(receipt.id)} onDismiss={() => setShowConf(false)} />}
           </>
         );
       }}

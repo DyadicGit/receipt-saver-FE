@@ -1,3 +1,7 @@
+.editable {
+    color: #c8d406 !important;
+}
+
 .inputField {
     position: relative;
     margin-top: 1rem;

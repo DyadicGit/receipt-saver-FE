@@ -1,5 +1,6 @@
 import React, { Dispatch } from "react";
 import styles from './InputField.module.css';
+import cx from 'classnames';
 
 type FieldProps = {
   text: string;
@@ -13,7 +14,7 @@ const InputField = ({ text, value, setter, type = 'text', disabled = false }: Fi
   const id = text.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]/g, '');
   return (
     <div className={styles.inputField}>
-      <label htmlFor={id}>{text}
+      <label className={cx(!disabled && styles.editable)} htmlFor={id}>{text}
         <input id={id} type={type} value={value} onChange={e => setter(e.target.value)} disabled={disabled}/>
       </label>
     </div>
