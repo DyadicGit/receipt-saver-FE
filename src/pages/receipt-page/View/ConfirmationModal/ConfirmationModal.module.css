@@ -1,0 +1,19 @@
+.container {
+  z-index: 3;
+  position: absolute;
+  left: 5vw;
+  right: 5vw;
+  top: 45vh;
+  text-align: center;
+  box-shadow: 0 8px 25px rgb(166, 255, 23);
+  padding: 0 1em 1em 1em;
+  background-color: black;
+  opacity: 0.8;
+  color: white;
+}
+.container input:first-of-type {
+  margin-right: 15vw;
+}
+.belowSpinner {
+  z-index: 2;
+}

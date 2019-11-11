@@ -7,8 +7,14 @@ import cx from 'classnames';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import styles from './ReceiptList.module.css';
 import RoundLinkCreateReceipt from '../../../components/RoundButton';
+import { secondsToMonths, toNumber } from "../utils";
 
-export const toNumber = (input: string | number): number => (typeof input === 'string') ? parseInt(input, 10) : input;
+const warrantyTimer = (buyDate: Date, warrantyPeriod: number = 0) => {
+  const warrantyEndDate = new Date(buyDate).setMonth(buyDate.getMonth() + secondsToMonths(warrantyPeriod));
+  const difference = warrantyEndDate - Date.now();
+  const days = Math.floor(difference/1000/60/60/24);
+  return days <= 0 ? '\u2014' : (days >= 30 ? `${Math.floor(days/30)} months left,` : `${days} days left,`);
+};
 
 const receiptLine = (history: any, receipt: Receipt) => {
   const date = new Date(toNumber(receipt.buyDate || receipt.creationDate));
@@ -17,7 +23,7 @@ const receiptLine = (history: any, receipt: Receipt) => {
       key={receipt.id}
       className={cx(styles.lineGrid, styles.lineSelectEffect, styles.lineTriangleEffect)}
       onClick={() => redirectToReceipt(history, receipt.id)}>
-      <div className={styles.dateColor}>{date.toLocaleDateString()}&emsp;{date.toLocaleTimeString()}</div>
+      <div className={styles.dateColor}>{warrantyTimer(date, receipt.warrantyPeriod)}&emsp;{date.toLocaleDateString()}&nbsp;{date.toLocaleTimeString()}</div>
       <span>Name:</span>
       <span>{receipt.itemName}</span>
       <span>Shop:</span>
