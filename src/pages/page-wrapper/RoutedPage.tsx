@@ -15,7 +15,7 @@ const NavBar = ({ pageTitle, isPrev, buttons }) => (
       </div>
     )}
     <h3 className={gridStyles.title}>{pageTitle}</h3>
-    <div className={gridStyles.additionalButtons}>{buttons}</div>
+    <div className={gridStyles.additionalButtons}>{buttons.map((S, i) => <React.Fragment key={i}>{S}</React.Fragment>)}</div>
   </div>
 );
 

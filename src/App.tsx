@@ -1,10 +1,11 @@
-import React, { Suspense, lazy } from 'react';
+import React, { lazy, Suspense } from 'react';
 import './pages/page-wrapper/grid.module.css';
-import { BrowserRouter, Redirect, Route, Switch, useLocation, useHistory } from 'react-router-dom';
+import { BrowserRouter, Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ReceiptList from './pages/receipt-page/List/ReceiptList';
 import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
+import PetalSpinner from "./components/PetalSpinner";
 
 const transitionDuration = 300; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
@@ -46,7 +47,8 @@ const LazyAllPages = () => <AllPages elements={elements} />;
 const App = ({ state }) => {
   return (
     <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
+      {state && state.isLoading && <PetalSpinner />}
+      <Suspense fallback={<PetalSpinner />}>
         <Switch>
           <Route exact path="/">
             <Redirect to="/receipt" />

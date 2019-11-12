@@ -10,7 +10,7 @@ const GlowShadowBox = styled.div`
   position: absolute;
   left: 5vw;
   right: 5vw;
-  top: 45vh;
+  top: 17vh;
   text-align: center;
   box-shadow: 0 0 25px 10px rgb(166, 255, 23);
   padding: 0 1em 1em 1em;
@@ -25,7 +25,7 @@ const GlowShadowBox = styled.div`
 type Props = { show: boolean; onEnter?: () => void; onExit?: () => void; onConfirm: () => void; onDismiss: () => void };
 export default ({ show, onEnter, onExit, onConfirm, onDismiss }: Props) => (
   <>
-    <CSSTransition in={show} timeout={300} classNames="confModal" unmountOnExit onEnter={onEnter} onExited={onExit}>
+    <CSSTransition in={show} timeout={100} classNames="confModal" unmountOnExit onEnter={onEnter} onExited={onExit}>
       <GlowShadowBox>
         <p>Are you sure you want to DELETE it?</p>
         <ButtonBlackWhite type="button" value="YES" red onClick={onConfirm} />

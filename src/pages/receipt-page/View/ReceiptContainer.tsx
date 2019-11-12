@@ -5,14 +5,16 @@ import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
 import { deleteReceipt } from '../receiptActions';
+import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 
-const titleByMode = (mode: Mode): string => ({
-  EDIT: 'Editing',
-  VIEW: 'Details',
-  CREATE: 'Creation'
-})[mode] || 'Details';
+const titleByMode = (mode: Mode): string =>
+  ({
+    EDIT: 'Editing',
+    VIEW: 'Details',
+    CREATE: 'Creation'
+  }[mode] || 'Details');
 
 const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const { receipts, selectedReceipt, isLoading } = state;
@@ -25,12 +27,21 @@ const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: 
     history.push(`/receipt`);
     deleteReceipt(receiptId);
   };
+
   const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
+  const formId = (receipt && receipt.id) || 'create';
   return (
     <>
       {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
-        <RoutedPage pageTitle={titleByMode(mode)}>
-          <ReceiptForm receipt={receipt as any} mode={mode} onEditClick={setMode} onDeleteClick={() => setShowConf(true)} />
+        <RoutedPage
+          pageTitle={titleByMode(mode)}
+          buttons={[
+            (mode === 'EDIT' || mode === 'CREATE') && <ButtonBlackWhite form={formId} type="submit" value="Submit" />,
+            mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />,
+            mode === 'VIEW' && <ButtonBlackWhite red type="button" value="Delete" style={{ float: 'right' }} onClick={() => setShowConf(true)} />
+          ]}
+        >
+          <ReceiptForm formId={formId} receipt={receipt as any} mode={mode} setMode={setMode} />
         </RoutedPage>
       )}
       {receipt && mode === 'VIEW' && (

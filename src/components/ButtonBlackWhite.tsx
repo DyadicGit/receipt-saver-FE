@@ -1,9 +1,8 @@
-import React from 'react';
 import styled from 'styled-components';
 
 const ButtonBlackWhite = styled.input`
   display: inline-block;
-  padding: 10px 25px;
+  padding: 10px 4vw;
   border: 0.1em solid white;
   margin: 0.5em;
   border-radius: 0.12em;

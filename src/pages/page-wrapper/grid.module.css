@@ -41,5 +41,8 @@
     grid-column: 3/4;
     justify-self: right;
     align-self: center;
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 3vw;
 }
 
