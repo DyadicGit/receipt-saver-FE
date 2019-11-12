@@ -1,57 +1,67 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { StateContext } from '../../../rxjs-as-redux/storeInstances';
-import { Receipt } from '../../../config/DomainTypes';
+import Hammer from 'hammerjs';
+import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
 import { deleteReceipt } from '../receiptActions';
+import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 
-const ReceiptContainer = ({ initMode }: { initMode?: Mode }) => {
+const titleByMode = (mode: Mode): string =>
+  ({
+    EDIT: 'Editing',
+    VIEW: 'Details',
+    CREATE: 'Creation'
+  }[mode] || 'Details');
+
+const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: Mode }) => {
+  const { receipts, selectedReceipt, isLoading } = state;
+  const refForSwipeBack = useRef(null);
+  useEffect(() => {
+    if (refForSwipeBack && refForSwipeBack.current) {
+      const mc = new Hammer(refForSwipeBack.current);
+      mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+      mc.on('swiperight', ev => {
+        // console.log(ev.type + ' gesture detected.');
+        history.push(`/receipt`);
+      });
+    }
+  });
+
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
-  const [pageTitle, setPageTitle] = useState('Receipt Info');
   const [showConf, setShowConf] = useState(false);
   const fromParams = useParams();
   const history = useHistory();
-
-  const setModeAndPageTitle = (mode: Mode) => {
-    if (mode === 'EDIT') {
-      setMode('EDIT');
-      setPageTitle('Receipt Edit');
-    } else if (mode === 'VIEW') {
-      setMode('VIEW');
-      setPageTitle('Receipt Info');
-    } else if (mode === 'CREATE') {
-      setMode('CREATE');
-      setPageTitle('Receipt Creation');
-    } else {
-      setMode('VIEW');
-      setPageTitle('Receipt Info');
-    }
-  };
   const handleConfirmedDelete = receiptId => {
     history.push(`/receipt`);
     deleteReceipt(receiptId);
   };
 
+  const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
+  const formId = (receipt && receipt.id) || 'create';
+
   return (
-    <StateContext.Consumer>
-      {({ receipts, selectedReceipt, isLoading }) => {
-        const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
-        return (
-          <>
-            {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
-              <RoutedPage pageTitle={pageTitle}>
-                <ReceiptForm receipt={receipt as any} mode={mode} onEditClick={setModeAndPageTitle} onDeleteClick={() => setShowConf(true)} />
-              </RoutedPage>
-            )}
-            {(receipt && mode === 'VIEW') && <DeletionConfirmModal show={showConf} onConfirm={() => handleConfirmedDelete(receipt.id)} onDismiss={() => setShowConf(false)} />}
-          </>
-        );
-      }}
-    </StateContext.Consumer>
+    <>
+      {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
+        <RoutedPage
+          pageTitle={titleByMode(mode)}
+          buttons={[
+            (mode === 'EDIT' || mode === 'CREATE') && <ButtonBlackWhite form={formId} type="submit" value="Submit" />,
+            mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />,
+            mode === 'VIEW' && <ButtonBlackWhite red type="button" value="Delete" style={{ float: 'right' }} onClick={() => setShowConf(true)} />
+          ]}
+          refSwipe={refForSwipeBack}
+        >
+          <ReceiptForm formId={formId} receipt={receipt as any} mode={mode} setMode={setMode} />
+        </RoutedPage>
+      )}
+      {receipt && mode === 'VIEW' && (
+        <DeletionConfirmModal show={showConf} onConfirm={() => handleConfirmedDelete(receipt.id)} onDismiss={() => setShowConf(false)} />
+      )}
+    </>
   );
 };
 

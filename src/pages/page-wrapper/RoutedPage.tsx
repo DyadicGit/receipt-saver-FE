@@ -5,7 +5,7 @@ import DoubleArrow from '../../components/DoubleArrows';
 import './page.transition.css';
 import gridStyles from './grid.module.css';
 
-const NavBar = ({ pageTitle, isPrev }) => (
+const NavBar = ({ pageTitle, isPrev, buttons }) => (
   <div className={gridStyles.nav}>
     {isPrev && (
       <div className={gridStyles.backButton}>
@@ -15,22 +15,25 @@ const NavBar = ({ pageTitle, isPrev }) => (
       </div>
     )}
     <h3 className={gridStyles.title}>{pageTitle}</h3>
+    <div className={gridStyles.additionalButtons}>{buttons.map((S, i) => <React.Fragment key={i}>{S}</React.Fragment>)}</div>
   </div>
 );
 
 type Props = {
   children: React.ReactNode;
   pageTitle?: string;
+  buttons?: React.Component[];
   background?: string;
   location: any;
+  refSwipe: any;
 };
-const RoutedPage = ({ children, pageTitle, location: { pathname } }: Props) => {
+const RoutedPage = ({ children, pageTitle, buttons, location: { pathname }, refSwipe }: Props) => {
   const isPrev = pathname !== '/receipt';
   return (
     <div className={cx('page', isPrev && 'page--prev')}>
       <div className={gridStyles.pageContainer}>
-        <NavBar pageTitle={pageTitle} isPrev={isPrev} />
-        <div className={gridStyles.pageBody}>
+        <NavBar pageTitle={pageTitle} isPrev={isPrev} buttons={buttons}/>
+        <div className={gridStyles.pageBody} ref={refSwipe}>
           {children}
         </div>
       </div>

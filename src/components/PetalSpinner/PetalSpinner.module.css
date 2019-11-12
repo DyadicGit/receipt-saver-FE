@@ -1,13 +1,3 @@
-.fullPageDimming {
-  z-index: 10;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: #282c34c7;
-}
-
 .container {
   z-index: 11;
   width: 40vw;

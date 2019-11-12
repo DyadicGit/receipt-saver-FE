@@ -1,64 +1,72 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import './pages/page-wrapper/grid.module.css';
-import HelloWorldPage from './pages/HelloWorldPage';
-import { BrowserRouter, Redirect, Route, Switch, useLocation, useHistory } from 'react-router-dom';
+import { BrowserRouter, Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ReceiptList from './pages/receipt-page/List/ReceiptList';
 import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
+import PetalSpinner from "./components/PetalSpinner";
 
-const transitionDuration = 1000; // 1s also in page.transition.css
+const transitionDuration = 300; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
 
-const ReceiptSwitcher = ({receipts}) => {
+const ReceiptSwitcher = ({ state }) => {
   const location = useLocation();
-  const history = useHistory();
-  const receiptId = location.pathname.replace(/\/receipt\/|\/receipt/, '');
-  if (
-    location.pathname !== '/receipt/create'
-    && receipts.order && receipts.order.length
-    && receiptId && !receipts.byId[receiptId]
-  ) {
-    history.push('/404')
-  }
   return (
     <TransitionGroup className="transition-group">
       <CSSTransition key={location.key} classNames="page" timeout={timeout}>
         <Switch location={location}>
-          <Route exact path="/receipt" component={ReceiptList} />
+          <Route exact path="/receipt">
+            <ReceiptList state={state} />
+          </Route>
           <Route path="/receipt/create">
-            <ReceiptContainer initMode="CREATE"/>
+            <ReceiptContainer initMode="CREATE" state={state} />
           </Route>
           <Route path="/receipt/:id">
-            <ReceiptContainer initMode="VIEW"/>
+            <ReceiptContainer initMode="VIEW" state={state} />
           </Route>
+          <Route exact path="/receipts" component={LazyHelloWorldPage} />
+          <Route path="/receipts/all/:id" component={LazyAllPages} />
+          <Route path="/receipts*" component={LazyAllPages} />
         </Switch>
       </CSSTransition>
     </TransitionGroup>
   );
 };
 
-const App = ({state}) => {
+const randomHexCode = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16);
+const elements = Array(20)
+  .fill('some text')
+  .map((s, i) => ({ text: `${s} #${i}`, color: randomHexCode(), id: i }));
+
+const HelloWorldPage = lazy(() => import('./pages/HelloWorldPage'));
+const AllPages = lazy(() => import('./pages/AllPages'));
+const LazyHelloWorldPage = () => <HelloWorldPage elements={elements} />;
+const LazyAllPages = () => <AllPages elements={elements} />;
+
+const App = ({ state }) => {
   return (
     <BrowserRouter>
-      <Switch>
-        <Route exact path="/helloWorld" component={HelloWorldPage} />
-        <Route exact path="/">
-          <Redirect to="/receipt" />
-        </Route>
-        <Route path="/receipt*">
-          <ReceiptSwitcher receipts={state.receipts}/>
-        </Route>
-        <Route path="/create">
-          <ReceiptSwitcher receipts={state.receipts}/>
-        </Route>
-        <Route path="/404">
-          <Page404 code="404"/>
-        </Route>
-        <Route>
-          <Page404 code="404"/>
-        </Route>
-      </Switch>
+      {state && state.isLoading && <PetalSpinner />}
+      <Suspense fallback={<PetalSpinner />}>
+        <Switch>
+          <Route exact path="/">
+            <Redirect to="/receipt" />
+          </Route>
+          <Route path="/receipt*">
+            <ReceiptSwitcher state={state} />
+          </Route>
+          <Route path="/404">
+            <Page404 code="404" />
+          </Route>
+          <Route exact path="/index.html">
+            <Redirect to="/receipt" />
+          </Route>
+          <Route>
+            <Page404 code="404" />
+          </Route>
+        </Switch>
+      </Suspense>
     </BrowserRouter>
   );
 };
