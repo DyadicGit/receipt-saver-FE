@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from './PetalSpinner.module.css';
 import cx from 'classnames';
+import FullPageDimmer from '../FullPageDimmer';
 
 const PetalSpinner = () => (
   <>
-    <div className={styles.fullPageDimming} />
+    <FullPageDimmer />
     <div className={styles.container}>
       <div className={cx(styles.one, styles.common)} />
       <div className={cx(styles.two, styles.common)} />

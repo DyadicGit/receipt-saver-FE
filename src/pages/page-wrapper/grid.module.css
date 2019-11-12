@@ -4,11 +4,10 @@
     color: white;
     display: grid;
     grid-template-columns: 5vw 90vw 5vw;
-    grid-template-rows: 100px calc(100vh - 200px) 100px;
+    grid-template-rows: 100px 1fr;
     grid-template-areas:
             ". navbar ."
-            ". pageBody ."
-            ". . .";
+            ". pageBody .";
 }
 .pageBody {
     grid-area: pageBody;
@@ -16,8 +15,11 @@
 .nav {
     grid-area: navbar;
     display: grid;
-    grid-template-columns: 130px 1fr;
+    grid-template-columns: 25px auto 1fr 15px;
     grid-gap: 10px;
+    position: fixed;
+    background-color: black;
+    width: 100%;
 }
 .nav .backButton {
     grid-column: 1/2;
@@ -31,8 +33,13 @@
 }
 
 .nav .title {
-    grid-column-start: 2;
+    grid-column: 2/3;
     margin-left: 5vw;
     color: white;
+}
+.nav .additionalButtons {
+    grid-column: 3/4;
+    justify-self: right;
+    align-self: center;
 }
 

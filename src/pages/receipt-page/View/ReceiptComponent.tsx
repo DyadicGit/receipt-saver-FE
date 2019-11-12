@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import cx from 'classnames';
 import { Receipt } from '../../../config/DomainTypes';
 import { createReceipt, editReceipt } from '../receiptActions';
 import Field from '../../../components/InputField';
-import buttonStyles from '../../../components/Button/Button.module.css';
 import { Mode } from './ReceiptContainer';
 import { monthsToSeconds, secondsToMonths, toNumber } from '../utils';
+import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 
@@ -15,7 +14,7 @@ type ReceiptFormProps = {
   onEditClick: (mode: Mode) => void;
   onDeleteClick: () => void;
 };
-const ReceiptForm = ({ receipt, mode, onEditClick: toggleMode, onDeleteClick }: ReceiptFormProps) => {
+const ReceiptForm = ({ receipt, mode, onEditClick: setMode, onDeleteClick }: ReceiptFormProps) => {
   const [itemName, setItemName] = useState((receipt && receipt.itemName) || '');
   const [shopName, setShopName] = useState((receipt && receipt.shopName) || '');
   const [date, setDate] = useState(
@@ -39,7 +38,7 @@ const ReceiptForm = ({ receipt, mode, onEditClick: toggleMode, onDeleteClick }: 
     };
     if (mode === 'EDIT') editReceipt(newReceipt);
     if (mode === 'CREATE') createReceipt(newReceipt);
-    toggleMode('VIEW');
+    setMode('VIEW');
   };
 
   return (
@@ -53,17 +52,9 @@ const ReceiptForm = ({ receipt, mode, onEditClick: toggleMode, onDeleteClick }: 
 
       <br />
       <br />
-      {(mode === 'EDIT' || mode === 'CREATE') && <input type="submit" value="Submit" className={buttonStyles.blackAndWhite} />}
-      {mode === 'VIEW' && <input type="button" value="Edit" className={buttonStyles.blackAndWhite} onClick={() => toggleMode('EDIT')} />}
-      {mode === 'VIEW' && (
-        <input
-          type="button"
-          value="Delete"
-          className={cx(buttonStyles.blackAndWhite, buttonStyles.red)}
-          style={{ float: 'right' }}
-          onClick={onDeleteClick}
-        />
-      )}
+      {(mode === 'EDIT' || mode === 'CREATE') && <ButtonBlackWhite type="submit" value="Submit" />}
+      {mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />}
+      {mode === 'VIEW' && <ButtonBlackWhite red type="button" value="Delete" style={{ float: 'right' }} onClick={onDeleteClick} />}
     </form>
   );
 };

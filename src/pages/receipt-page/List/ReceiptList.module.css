@@ -26,10 +26,6 @@
     border: solid 1px #d3d63854;
 }
 .lineSelectEffect:hover, .lineSelectEffect:active {
-    border-bottom-left-radius: 20px;
-    border-top-left-radius: 20px;
-    border: solid 3px #d3d63854;
-    border-right-color: rgba(216, 255, 90, 0.1);
     background: #3067195e;
 }
 .lineTriangleEffect:hover.lineTriangleEffect::after, .lineTriangleEffect:active.lineTriangleEffect::after {

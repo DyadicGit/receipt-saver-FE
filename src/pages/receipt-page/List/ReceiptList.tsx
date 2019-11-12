@@ -1,13 +1,12 @@
 import React from 'react';
-import { NormalizedReceipts, Receipt } from '../../../config/DomainTypes';
+import { GlobalState, NormalizedReceipts, Receipt } from '../../../config/DomainTypes';
 import { selectReceipt } from '../receiptActions';
 import { useHistory } from 'react-router-dom';
-import { StateContext } from '../../../rxjs-as-redux/storeInstances';
 import cx from 'classnames';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import styles from './ReceiptList.module.css';
-import RoundLinkCreateReceipt from '../../../components/RoundButton';
 import { secondsToMonths, toNumber } from "../utils";
+import LinkBlackWhite from "../../../components/LinkBlackWhite";
 
 const warrantyTimer = (buyDate: Date, warrantyPeriod: number = 0) => {
   const warrantyEndDate = new Date(buyDate).setMonth(buyDate.getMonth() + secondsToMonths(warrantyPeriod));
@@ -23,7 +22,7 @@ const receiptLine = (history: any, receipt: Receipt) => {
       key={receipt.id}
       className={cx(styles.lineGrid, styles.lineSelectEffect, styles.lineTriangleEffect)}
       onClick={() => redirectToReceipt(history, receipt.id)}>
-      <div className={styles.dateColor}>{warrantyTimer(date, receipt.warrantyPeriod)}&emsp;{date.toLocaleDateString()}&nbsp;{date.toLocaleTimeString()}</div>
+      <div className={styles.dateColor}>{warrantyTimer(date, receipt.warrantyPeriod)}&emsp;{date.toLocaleDateString()}</div>
       <span>Name:</span>
       <span>{receipt.itemName}</span>
       <span>Shop:</span>
@@ -45,19 +44,14 @@ const redirectToReceipt = (history: any, receiptId: string) => {
   selectReceipt(receiptId)
 };
 
-const ReceiptPage = () => {
+const ReceiptPage = ({state}: {state: GlobalState}) => {
   const history = useHistory();
-
+  const { receipts, isLoading } = state;
   return (
-    <StateContext.Consumer>
-      {({ receipts, isLoading }) => (
-        <RoutedPage pageTitle="Receipt list">
-          {isLoading && <p>Loading...</p>}
-          <ReceiptList receipts={receipts} history={history}/>
-          <RoundLinkCreateReceipt />
-        </RoutedPage>
-      )}
-    </StateContext.Consumer>
+    <RoutedPage pageTitle="Receipt list" buttons={<LinkBlackWhite title="New" to="/receipt/create"/>}>
+      {isLoading && <p>Loading...</p>}
+      <ReceiptList receipts={receipts} history={history}/>
+    </RoutedPage>
   );
 };
 export default ReceiptPage;
