@@ -27,7 +27,7 @@ const ReceiptSwitcher = ({ state }) => {
           </Route>
           <Route exact path="/receipts" component={LazyHelloWorldPage} />
           <Route path="/receipts/all/:id" component={LazyAllPages} />
-          <Route path="/receipts/all" component={LazyAllPages} />
+          <Route path="/receipts*" component={LazyAllPages} />
         </Switch>
       </CSSTransition>
     </TransitionGroup>
