@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import Hammer from 'hammerjs';
 import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
@@ -18,6 +19,17 @@ const titleByMode = (mode: Mode): string =>
 
 const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const { receipts, selectedReceipt, isLoading } = state;
+  const refForSwipeBack = useRef(null);
+  useEffect(() => {
+    if (refForSwipeBack && refForSwipeBack.current) {
+      const mc = new Hammer(refForSwipeBack.current);
+      mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+      mc.on('swiperight', ev => {
+        // console.log(ev.type + ' gesture detected.');
+        history.push(`/receipt`);
+      });
+    }
+  });
 
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [showConf, setShowConf] = useState(false);
@@ -30,6 +42,7 @@ const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: 
 
   const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
   const formId = (receipt && receipt.id) || 'create';
+
   return (
     <>
       {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
@@ -40,6 +53,7 @@ const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: 
             mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />,
             mode === 'VIEW' && <ButtonBlackWhite red type="button" value="Delete" style={{ float: 'right' }} onClick={() => setShowConf(true)} />
           ]}
+          refSwipe={refForSwipeBack}
         >
           <ReceiptForm formId={formId} receipt={receipt as any} mode={mode} setMode={setMode} />
         </RoutedPage>

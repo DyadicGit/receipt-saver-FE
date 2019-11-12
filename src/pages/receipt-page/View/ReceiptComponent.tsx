@@ -13,7 +13,7 @@ type ReceiptFormProps = {
   mode: Mode;
   setMode: (mode: Mode) => void;
 };
-const ReceiptForm = ({formId, receipt, mode, setMode }: ReceiptFormProps) => {
+const ReceiptForm = ({ formId, receipt, mode, setMode }: ReceiptFormProps) => {
   const [itemName, setItemName] = useState((receipt && receipt.itemName) || '');
   const [shopName, setShopName] = useState((receipt && receipt.shopName) || '');
   const [date, setDate] = useState(
