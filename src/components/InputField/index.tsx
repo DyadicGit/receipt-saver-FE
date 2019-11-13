@@ -14,7 +14,7 @@ type FieldProps = {
 const InputField = ({ text, value, setter, type = 'text', disabled = false }: FieldProps) => {
   const id = text.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]/g, '');
   const clearZeros = (ev) => {
-    if (type == 'number' && !toNumber(value)) {
+    if (type === 'number' && !toNumber(value)) {
       ev.target.value=''
     }
   };

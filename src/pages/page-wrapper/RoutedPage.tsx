@@ -21,12 +21,12 @@ const NavBar = ({ pageTitle, isPrev, buttons }) => (
 
 type Props = {
   children: React.ReactNode;
-  pageTitle?: string;
+  pageTitle: string;
   buttons?: React.Component[];
   background?: string;
   location: any;
-  refBody: any;
-  refPage: any;
+  refBody?: any;
+  refPage?: any;
 };
 const RoutedPage = ({ children, pageTitle, buttons, location: { pathname }, refBody, refPage }: Props) => {
   const isPrev = pathname !== '/receipt';
