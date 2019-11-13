@@ -19,7 +19,7 @@ const titleByMode = (mode: Mode): string =>
 
 const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const { receipts, selectedReceipt, isLoading } = state;
-  const refForSwipeBack = useRef(null);
+  const refForSwipeBack: any = useRef(null);
   useEffect(() => {
     if (refForSwipeBack && refForSwipeBack.current) {
       const mc = new Hammer(refForSwipeBack.current);

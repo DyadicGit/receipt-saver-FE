@@ -2,13 +2,24 @@ import React, { lazy, Suspense } from 'react';
 import './pages/page-wrapper/grid.module.css';
 import { BrowserRouter, Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import ReceiptList from './pages/receipt-page/List/ReceiptList';
 import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
 import PetalSpinner from "./components/PetalSpinner";
+const ReceiptList = lazy(() => import('./pages/receipt-page/List/ReceiptList'));
 
 const transitionDuration = 300; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
+
+/// ToDo: delete after testing
+const randomHexCode = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16);
+const elements = Array(20)
+  .fill('some text')
+  .map((s, i) => ({ text: `${s} #${i}`, color: randomHexCode(), id: i }));
+const HelloWorldPage = lazy(() => import('./pages/HelloWorldPage'));
+const AllPages = lazy(() => import('./pages/AllPages'));
+const LazyHelloWorldPage = () => <HelloWorldPage elements={elements} />;
+const LazyAllPages = () => <AllPages elements={elements} />;
+////////
 
 const ReceiptSwitcher = ({ state }) => {
   const location = useLocation();
@@ -33,16 +44,6 @@ const ReceiptSwitcher = ({ state }) => {
     </TransitionGroup>
   );
 };
-
-const randomHexCode = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16);
-const elements = Array(20)
-  .fill('some text')
-  .map((s, i) => ({ text: `${s} #${i}`, color: randomHexCode(), id: i }));
-
-const HelloWorldPage = lazy(() => import('./pages/HelloWorldPage'));
-const AllPages = lazy(() => import('./pages/AllPages'));
-const LazyHelloWorldPage = () => <HelloWorldPage elements={elements} />;
-const LazyAllPages = () => <AllPages elements={elements} />;
 
 const App = ({ state }) => {
   return (
