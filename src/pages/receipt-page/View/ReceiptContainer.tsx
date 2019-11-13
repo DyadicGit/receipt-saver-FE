@@ -36,12 +36,14 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   };
   const refForSwipeBack: any = useRef(null);
   useEffect(() => {
-    const mc = new Hammer(refForSwipeBack.current, { recognizers: [[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]] });
-    fromEvent(mc as any, 'swiperight').subscribe(event => {
-      swipeListener$.next(swipeAction(event, history));
-    });
+    if (refForSwipeBack && refForSwipeBack.current) {
+      const mc = new Hammer(refForSwipeBack.current, { recognizers: [[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]] });
+      fromEvent(mc as any, 'swiperight').subscribe(event => {
+        swipeListener$.next(swipeAction(event, history));
+      });
+    }
   });
-  const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
+  const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams.id)] : undefined;
   const formId = (receipt && receipt.id) || 'create';
 
   return (
@@ -54,7 +56,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
             mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />,
             mode === 'VIEW' && <ButtonBlackWhite red type="button" value="Delete" style={{ float: 'right' }} onClick={() => setShowConf(true)} />
           ]}
-          refSwipe={refForSwipeBack}
+          refBody={refForSwipeBack}
         >
           <ReceiptForm formId={formId} receipt={receipt as any} mode={mode} setMode={setMode} />
         </RoutedPage>
