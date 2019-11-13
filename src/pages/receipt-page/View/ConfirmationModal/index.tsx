@@ -10,7 +10,7 @@ const GlowShadowBox = styled.div`
   position: absolute;
   left: 5vw;
   right: 5vw;
-  top: 17vh;
+  top: 35vh;
   text-align: center;
   box-shadow: 0 0 25px 10px rgb(166, 255, 23);
   padding: 0 1em 1em 1em;

@@ -25,7 +25,7 @@ const ReceiptForm = ({ formId, receipt, mode, setMode }: ReceiptFormProps) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
+    // console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
     const newReceipt: Receipt = {
       ...receipt,
       itemName,
@@ -46,7 +46,7 @@ const ReceiptForm = ({ formId, receipt, mode, setMode }: ReceiptFormProps) => {
       <Field text="Shop" value={shopName} setter={setShopName} disabled={isDisabled[mode]} />
       <Field text="Date" value={date} setter={setDate} type="date" disabled={isDisabled[mode]} />
       <Field text="Image" value={image} setter={setImage} disabled={isDisabled[mode]} />
-      <Field text="Price" value={totalPrice} setter={setTotalPrice} type="number" disabled={isDisabled[mode]} />
+      <Field text="Price" value={totalPrice} setter={setTotalPrice} type="number" disabled={isDisabled[mode]}/>
       <Field text="Warranty Period (in months)" value={warrantyPeriod} setter={setWarrantyPeriod} type="number" disabled={isDisabled[mode]} />
     </form>
   );

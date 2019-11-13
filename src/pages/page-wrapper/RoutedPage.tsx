@@ -21,19 +21,20 @@ const NavBar = ({ pageTitle, isPrev, buttons }) => (
 
 type Props = {
   children: React.ReactNode;
-  pageTitle?: string;
+  pageTitle: string;
   buttons?: React.Component[];
   background?: string;
   location: any;
-  refSwipe: any;
+  refBody?: any;
+  refPage?: any;
 };
-const RoutedPage = ({ children, pageTitle, buttons, location: { pathname }, refSwipe }: Props) => {
+const RoutedPage = ({ children, pageTitle, buttons, location: { pathname }, refBody, refPage }: Props) => {
   const isPrev = pathname !== '/receipt';
   return (
-    <div className={cx('page', isPrev && 'page--prev')}>
+    <div className={cx('page', isPrev && 'page--prev')} ref={refPage}>
       <div className={gridStyles.pageContainer}>
         <NavBar pageTitle={pageTitle} isPrev={isPrev} buttons={buttons}/>
-        <div className={gridStyles.pageBody} ref={refSwipe}>
+        <div className={gridStyles.pageBody} ref={refBody}>
           {children}
         </div>
       </div>

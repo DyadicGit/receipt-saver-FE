@@ -10,7 +10,7 @@ export const Line = styled.li`
   margin-top: 2vh;
   border-radius: 0.1em;
   transition: ease-out 0.3s;
-  border: solid 1px #d3d63854;
+  border: ${(props: { visited: boolean }) => props.visited ? '4px' : '1px'} solid #d3d63854;
   //grid
   display: grid;
   grid-template-columns: 0.2fr 0.8fr;
@@ -28,27 +28,9 @@ export const Line = styled.li`
   //Visual Effects
   &.selectEffect:hover,
   &.selectEffect:active {
-    background: #3067195e;
+    background: rgba(48, 103, 25, 0.37);
   }
-  &.selectEffect:hover&.selectEffect::after,
-  &.selectEffect:active&.selectEffect::after {
-    opacity: 0.4;
-  }
-  &.selectEffect::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    align-self: center;
-    width: 0;
-    height: 0;
-    border-top: 35px solid transparent;
-    border-left: 25px solid #d3d63854;
-    border-bottom: 35px solid transparent;
-    clear: both;
-    opacity: 0;
-    transition: ease-in 500ms;
-  }
-
+  
   &.triangleEffect:hover&.triangleEffect::after,
   &.triangleEffect:active&.triangleEffect::after {
     opacity: 0.4;
@@ -67,6 +49,7 @@ export const Line = styled.li`
     opacity: 0;
     transition: ease-in 500ms;
   }
+  
 `;
 
 export const YellowDate = styled.div`

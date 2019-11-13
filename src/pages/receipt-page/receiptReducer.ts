@@ -15,7 +15,7 @@ export default (state: GlobalState, action: Action) =>
     RECEIPT_SELECTED: {
       ...state,
       isLoading: false,
-      selectedReceipt: { id: action.payload }
+      selectedReceipt: action.payload
     },
     RECEIPT_EDITED: {
       ...state,
@@ -39,6 +39,6 @@ export default (state: GlobalState, action: Action) =>
         byId: { ...state.receipts.byId, [action.payload.id]: action.payload },
         order: [action.payload.id, ...state.receipts.order]
       },
-      selectedReceipt: {id: action.payload.id}
+      selectedReceipt: action.payload.id
     },
   }[action.type] || state);
