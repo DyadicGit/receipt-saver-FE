@@ -7,7 +7,7 @@ import Page404 from './pages/Page404';
 import PetalSpinner from "./components/PetalSpinner";
 const ReceiptList = lazy(() => import('./pages/receipt-page/List/ReceiptList'));
 
-const transitionDuration = 300; // 1s also in page.transition.css
+const transitionDuration = 400; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
 
 /// ToDo: delete after testing

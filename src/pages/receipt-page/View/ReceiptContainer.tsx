@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import Hammer from 'hammerjs';
 import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
@@ -7,8 +7,16 @@ import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
 import { deleteReceipt } from '../receiptActions';
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
+import { fromEvent, Subject } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
+let swipeListener$ = new Subject();
+swipeListener$.pipe(throttleTime(500)).subscribe((fn: any) => fn());
+const swipeAction = (event, history) => () => {
+  // console.log(event.type + ' gesture detected.');
+  history.push(`/receipt`);
+};
 
 const titleByMode = (mode: Mode): string =>
   ({
@@ -17,20 +25,7 @@ const titleByMode = (mode: Mode): string =>
     CREATE: 'Creation'
   }[mode] || 'Details');
 
-const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: Mode }) => {
-  const { receipts, selectedReceipt, isLoading } = state;
-  const refForSwipeBack: any = useRef(null);
-  useEffect(() => {
-    if (refForSwipeBack && refForSwipeBack.current) {
-      const mc = new Hammer(refForSwipeBack.current);
-      mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
-      mc.on('swiperight', ev => {
-        // console.log(ev.type + ' gesture detected.');
-        history.push(`/receipt`);
-      });
-    }
-  });
-
+const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [showConf, setShowConf] = useState(false);
   const fromParams = useParams();
@@ -39,7 +34,13 @@ const ReceiptContainer = ({ state, initMode }: { state: GlobalState; initMode?: 
     history.push(`/receipt`);
     deleteReceipt(receiptId);
   };
-
+  const refForSwipeBack: any = useRef(null);
+  useEffect(() => {
+    const mc = new Hammer(refForSwipeBack.current, { recognizers: [[Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }]] });
+    fromEvent(mc as any, 'swiperight').subscribe(event => {
+      swipeListener$.next(swipeAction(event, history));
+    });
+  });
   const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts.byId[(selectedReceipt || fromParams).id] : undefined;
   const formId = (receipt && receipt.id) || 'create';
 
