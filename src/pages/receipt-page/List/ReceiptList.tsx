@@ -46,7 +46,7 @@ export default ({ state: { receipts, selectedReceipt } }: { state: GlobalState }
     }
   }, [selectedReceipt, receipts]);
   return (
-    <RoutedPage pageTitle="Receipt list" buttons={[<LinkBlackWhite title="New" to="/receipt/create" />]} refPage={refPage}>
+    <RoutedPage pageTitle="Receipt list" position="left" buttons={[<LinkBlackWhite title="New" to="/receipt/create" />]} refPage={refPage}>
       <List>
         {receipts.order && !!receipts.order.length && receipts.order.map(id => receiptLine(history, receipts.byId[id], selectedReceipt))}
         {receipts.order && !receipts.order.length && <span>list is empty &ensp; : (</span>}
