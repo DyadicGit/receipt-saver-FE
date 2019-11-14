@@ -1,44 +1,45 @@
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import DoubleArrow from '../../components/DoubleArrows';
+import { AdditionalButtonsContainer, BackButton, Nav, Page, PageBody, PageContainer, Title, WideLink } from './RoutedPage.styles';
 import './page.transition.css';
-import gridStyles from './grid.module.css';
 
 const NavBar = ({ pageTitle, isPrev, buttons }) => (
-  <div className={gridStyles.nav}>
+  <Nav>
     {isPrev && (
-      <div className={gridStyles.backButton}>
-        <Link className={gridStyles.wider} to={'/receipt'}>
+      <BackButton>
+        <WideLink to={'/receipt'}>
           <DoubleArrow />
-        </Link>
-      </div>
+        </WideLink>
+      </BackButton>
     )}
-    <h3 className={gridStyles.title}>{pageTitle}</h3>
-    <div className={gridStyles.additionalButtons}>{buttons.map((S, i) => <React.Fragment key={i}>{S}</React.Fragment>)}</div>
-  </div>
+    <Title>{pageTitle}</Title>
+    <AdditionalButtonsContainer>
+      {buttons.map((S, i) => (
+        <React.Fragment key={i}>{S}</React.Fragment>
+      ))}
+    </AdditionalButtonsContainer>
+  </Nav>
 );
 
 type Props = {
   children: React.ReactNode;
   pageTitle: string;
   buttons?: React.Component[];
-  background?: string;
   location: any;
   refBody?: any;
   refPage?: any;
 };
-const RoutedPage = ({ children, pageTitle, buttons, location: { pathname }, refBody, refPage }: Props) => {
+const RoutedPage = ({ children, pageTitle,  buttons, location: { pathname }, refBody, refPage }: Props) => {
   const isPrev = pathname !== '/receipt';
   return (
-    <div className={cx('page', isPrev && 'page--prev')} ref={refPage}>
-      <div className={gridStyles.pageContainer}>
-        <NavBar pageTitle={pageTitle} isPrev={isPrev} buttons={buttons}/>
-        <div className={gridStyles.pageBody} ref={refBody}>
-          {children}
-        </div>
-      </div>
-    </div>
+    <Page className={cx('page', isPrev && 'page--prev')} ref={refPage}>
+      <PageContainer>
+        <NavBar pageTitle={pageTitle} isPrev={isPrev} buttons={buttons} />
+        <PageBody ref={refBody}>{children}</PageBody>
+      </PageContainer>
+    </Page>
   );
 };
 
