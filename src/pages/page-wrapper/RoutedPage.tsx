@@ -16,7 +16,7 @@ const NavBar = ({ pageTitle, isPrev, buttons }) => (
     )}
     <Title>{pageTitle}</Title>
     <AdditionalButtonsContainer>
-      {buttons.map((S, i) => (
+      {buttons && buttons.length && buttons.map((S, i) => (
         <React.Fragment key={i}>{S}</React.Fragment>
       ))}
     </AdditionalButtonsContainer>

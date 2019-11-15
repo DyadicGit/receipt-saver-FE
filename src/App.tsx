@@ -7,19 +7,6 @@ import PetalSpinner from './components/PetalSpinner';
 import { Background } from './pages/page-wrapper/RoutedPage.styles';
 const ReceiptList = lazy(() => import('./pages/receipt-page/List/ReceiptList'));
 
-/// ToDo: delete after testing
-const randomHexCode = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16);
-const elements = Array(20)
-  .fill('some text')
-  .map((s, i) => ({ text: `${s} #${i}`, color: randomHexCode(), id: i }));
-const HelloWorldPage = lazy(() => import('./pages/HelloWorldPage'));
-const AllPages = lazy(() => import('./pages/AllPages'));
-const LazyHelloWorldPage = () => <HelloWorldPage elements={elements} />;
-const LazyAllPages = () => <AllPages elements={elements} />;
-////////
-
-
-
 const transitionDuration = 400; // 1s also in page.transition.css
 const timeout = { enter: transitionDuration, exit: transitionDuration };
 
@@ -38,9 +25,6 @@ const ReceiptSwitcher = ({ state }) => {
           <Route path="/receipt/:id">
             <ReceiptContainer initMode="VIEW" state={state} />
           </Route>
-          <Route exact path="/receipts" component={LazyHelloWorldPage} />
-          <Route path="/receipts/all/:id" component={LazyAllPages} />
-          <Route path="/receipts*" component={LazyAllPages} />
         </Switch>
       </CSSTransition>
     </TransitionGroup>
@@ -61,6 +45,7 @@ const App = ({ state }) => {
             <Route path="/receipt*">
               <ReceiptSwitcher state={state} />
             </Route>
+            <Route exact path="/helloWorld" component={lazy(() => import('./pages/HelloWorldPage'))} />
             <Route path="/404">
               <Page404 code="404" />
             </Route>

@@ -51,7 +51,6 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
       {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
         <RoutedPage
           pageTitle={titleByMode(mode)}
-          position="right"
           buttons={[
             (mode === 'EDIT' || mode === 'CREATE') && <ButtonBlackWhite form={formId} type="submit" value="Submit" />,
             mode === 'VIEW' && <ButtonBlackWhite type="button" value="Edit" onClick={() => setMode('EDIT')} />,

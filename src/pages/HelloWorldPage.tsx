@@ -1,42 +1,60 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { helloWorldApi } from '../config/endpoints';
-import { Header } from "./AllPages";
+import { ajax } from 'rxjs/ajax';
+import { getImageByKeyApi, helloWorldApi, uploadImageApi } from '../config/endpoints';
+import RoutedPage from './page-wrapper/RoutedPage';
+import { toUrl } from '../config/utils';
+import { ajaxPost } from 'rxjs/internal-compatibility';
 
-const Section = styled.section`
-  height: 10vw;
-  scroll-snap-align: start;
-  background-color: ${props => props.color};
-`;
+type ImageResponse = { buffer: { type: string; data: Buffer }; contentType: string };
 
-const Left = styled.div`
-  scroll-snap-type: y mandatory;
-  overflow-y: scroll;
-  height: 100%;
-`;
-
-export default ({ elements }) => {
+export default function HelloWorldPage() {
   const [text, setText] = useState('');
   useEffect(() => {
     fetch(helloWorldApi)
       .then(response => response.text())
       .then(setText);
   }, []);
+  const [imageUrl, setImageUrl] = useState({ url: '', loading: false });
+  const loadImage = () => {
+    setImageUrl({ ...imageUrl, loading: true });
+    fetch(getImageByKeyApi('pusheen-christmas-kawaii.jpg'))
+      .then(response => response.json())
+      .then((res: ImageResponse) => {
+        setImageUrl({ url: toUrl(res.buffer.data, res.contentType), loading: false });
+      });
+  };
+  const [files, setFiles] = useState([]);
 
+  const handleUploadSubmit = e => {
+    e.preventDefault();
+    const formData = new FormData();
+    /*    for (const file in files) {
+      formData.append('receiptImage', file);
+    }*/
+    formData.append('receiptImage', files[0]);
+    ajax.post(uploadImageApi, formData).subscribe(({ response }) => {
+      return console.log(response);
+    });
+  };
+  const handleInputChange = e => {
+    const inputFiles = e.target.files;
+    setFiles(files.concat(...inputFiles));
+  };
   return (
-    <>
-      <Header>HEader</Header>
-      <Left>
-        {elements.map((s, i) => (
-          <Section key={i} color={s.color}>
-            <Link to={`/receipts/all/${s.id}`}>
-              {text}
-              {s.text}
-            </Link>
-          </Section>
-        ))}
-      </Left>
-    </>
+    <RoutedPage pageTitle="Testing page">
+      <h1>{text}</h1>
+      <button onClick={loadImage}>load image</button>
+      {!imageUrl.loading && imageUrl.url && <img alt="pusheen" src={imageUrl.url} />}
+      {imageUrl.loading && <div>loading...</div>}
+      <br />
+      <br />
+      <span>Image Upload</span>
+      <form onSubmit={handleUploadSubmit}>
+        <input type="file" name="receiptImage" onChange={handleInputChange} />
+        <button type="submit" name="upload">
+          Upload
+        </button>
+      </form>
+    </RoutedPage>
   );
-};
+}
