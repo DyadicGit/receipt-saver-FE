@@ -3,7 +3,6 @@ import { map } from 'rxjs/operators';
 import { receiptStore } from '../../rxjs-as-redux/storeInstances';
 import { Action, ResolvableAction } from '../../rxjs-as-redux/RxStore';
 import { createReceiptApi, deleteReceiptApi, editReceiptApi, getAllReceiptsApi } from '../../config/endpoints';
-import { Receipt } from "../../config/DomainTypes";
 
 type NoParams = () => ResolvableAction;
 export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
@@ -24,8 +23,8 @@ export const selectReceipt: SelectReceipt = receiptStore.actionCreator((receiptI
   payload: receiptId
 }));
 
-type EditReceipt = (editedReceipt: Receipt) => Action;
-export const editReceipt: EditReceipt = receiptStore.actionCreator((editedReceipt: Receipt) => {
+type EditReceipt = (editedReceipt: FormData) => Action;
+export const editReceipt: EditReceipt = receiptStore.actionCreator((editedReceipt: FormData) => {
   return {
     type: 'LOADING',
     payload: ajax.put(editReceiptApi, editedReceipt).pipe(
@@ -36,8 +35,8 @@ export const editReceipt: EditReceipt = receiptStore.actionCreator((editedReceip
     )
   }
 });
-type CreateReceipt = (createdReceipt: Receipt) => Action;
-export const createReceipt: CreateReceipt = receiptStore.actionCreator((createdReceipt: Receipt) => {
+type CreateReceipt = (createdReceipt: FormData) => Action;
+export const createReceipt: CreateReceipt = receiptStore.actionCreator((createdReceipt: FormData) => {
   return {
     type: 'LOADING',
     payload: ajax.post(createReceiptApi, createdReceipt).pipe(

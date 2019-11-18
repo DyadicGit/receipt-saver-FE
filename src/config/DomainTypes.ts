@@ -6,7 +6,7 @@ export interface Receipt extends RequestReceipt {
 }
 
 export interface RequestReceipt {
-  image: string;
+  images: string[];
   shopName: string;
   itemId: string;
   itemName: string;

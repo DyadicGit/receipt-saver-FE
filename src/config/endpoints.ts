@@ -6,3 +6,7 @@ export const createReceiptApi = baseUrl + '/receipt';
 export const deleteReceiptApi = (id: string) => `${baseUrl}/receipt/${id}`;
 export const getImageByKeyApi = (key: string) => `${baseUrl}/image/${key}`;
 export const uploadImageApi = baseUrl + '/image';
+
+export enum AttachmentFieldName {
+  RECEIPT = 'receiptImage'
+}

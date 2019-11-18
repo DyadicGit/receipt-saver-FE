@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ajax } from 'rxjs/ajax';
-import { getImageByKeyApi, helloWorldApi, uploadImageApi } from '../config/endpoints';
+import { AttachmentFieldName, getImageByKeyApi, helloWorldApi, uploadImageApi } from '../config/endpoints';
 import RoutedPage from './page-wrapper/RoutedPage';
 import { toUrl } from '../config/utils';
-import { ajaxPost } from 'rxjs/internal-compatibility';
 
 type ImageResponse = { buffer: { type: string; data: Buffer }; contentType: string };
 
@@ -28,12 +27,12 @@ export default function HelloWorldPage() {
   const handleUploadSubmit = e => {
     e.preventDefault();
     const formData = new FormData();
-    /*    for (const file in files) {
-      formData.append('receiptImage', file);
-    }*/
-    formData.append('receiptImage', files[0]);
+    for (const file of files) {
+      formData.append(AttachmentFieldName.RECEIPT, file);
+    }
     ajax.post(uploadImageApi, formData).subscribe(({ response }) => {
-      return console.log(response);
+      // @ts-ignore
+      loadImage(response.key[0])
     });
   };
   const handleInputChange = e => {
@@ -50,7 +49,7 @@ export default function HelloWorldPage() {
       <br />
       <span>Image Upload</span>
       <form onSubmit={handleUploadSubmit}>
-        <input type="file" name="receiptImage" onChange={handleInputChange} />
+        <input type="file" multiple accept="image/*" onChange={handleInputChange} />
         <button type="submit" name="upload">
           Upload
         </button>
