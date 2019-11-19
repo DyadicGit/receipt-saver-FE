@@ -21,6 +21,6 @@ export interface NormalizedReceipts {
   order: string[];
 }
 
-export interface GlobalState extends InitialState{
+export interface GlobalState extends InitialState {
 
 }

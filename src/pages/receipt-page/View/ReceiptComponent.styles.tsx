@@ -1,18 +1,39 @@
 import styled from 'styled-components';
 
 export const Carousel = styled.div`
-  height: ${(props: { empty: boolean }) => (props.empty ? 'auto' : '30vh')};
+  height: 30vh;
   display: flex;
   margin-top: 10px;
   padding: 10px 0 10px 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 `;
-
-export const Img = styled.img`
+export const ImgContainer = styled.div`
   height: 100%;
   padding: 0 10px 0 10px;
+  position: relative;
   scroll-snap-align: start;
+`;
+export const XButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 10px;
+  display: inline-block;
+  padding: 4px 2vw;
+  border: 0.1em solid white;
+  margin: 0.5em;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-weight: bold;
+  color: white;
+  background-color: inherit;
+  text-align: center;
+  transition: all 0.2s;
+  :hover {
+    color: white;
+    background-color: red;
+  }
 `;
 
 type UploadButtonProps = { red?: boolean, disabled: boolean }
