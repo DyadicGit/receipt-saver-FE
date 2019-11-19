@@ -29,16 +29,16 @@ const readFile = (file: File): Observable<ReadResult> =>
     return reader.readAsDataURL(file);
   });
 
-type ImageBoxProps = { onRemove: () => void; url: string };
-const ImageBox = ({ onRemove, url }: ImageBoxProps) => {
+type ImageBoxProps = { onRemove: () => void; url: string; hideDeleteButton: boolean };
+const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
   return (
     <ImgContainer>
-      <XButton onClick={onRemove}>X</XButton>
+      {!hideDeleteButton && <XButton onClick={onRemove}>X</XButton>}
       <LazyImage src={url} alt="image" />
     </ImgContainer>
   );
 };
-const toImageState = ({ file, result }: ReadResult, index): Observable<ImageState> => of({ key: index, file, url: result });
+const toImageState = ({ file, result }: ReadResult): Observable<ImageState> => of({ key: undefined, file, url: result, userUploaded: true });
 
 const stateFromReceipt = (receipt: Receipt) => ({
   itemName: (receipt && receipt.itemName) || '',
@@ -66,7 +66,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
   useEffect(() => setState(stateFromReceipt(loadedReceipt)), [loadedReceipt]);
 
-  const [images, setImages]= useState<ImageState[]>(loadedImages);
+  const [images, setImages] = useState<ImageState[]>(loadedImages);
   useEffect(() => setImages(loadedImages), [loadedImages]);
 
   const handleSubmit = e => {
@@ -77,6 +77,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       ...loadedReceipt,
       shopName: state.shopName,
       itemName: state.itemName,
+      images: images.filter(s => !s.userUploaded),
       buyDate: Date.parse(`${state.date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
@@ -88,6 +89,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
     if (mode === 'CREATE') createReceipt(formData);
     setMode('VIEW');
   };
+
   const handleImageInput = e => {
     const files: File[] = Array.from(e.target.files);
     forkJoin(files.map(file => readFile(file).pipe(switchMap(toImageState)))).subscribe(
@@ -95,31 +97,28 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       error => console.error(error)
     );
   };
+
   const handleImageDeletion = key => setImages(images.filter(img => img.key !== key));
 
   return (
     <form id={formId} onSubmit={handleSubmit}>
-      <Field text="Item name" value={state.itemName} setter={value => setState({ ...state, itemName: value })} disabled={isDisabled[mode]} />
-      <Field text="Shop" value={state.shopName} setter={value => setState({ ...state, shopName: value })} disabled={isDisabled[mode]} />
-      <Field text="Date" value={state.date} setter={value => setState({ ...state, date: value })} type="date" disabled={isDisabled[mode]} />
-      <UploadButton disabled={isDisabled[mode]}>
-        <label htmlFor="imageUpload">Upload images</label>
-        <input id="imageUpload" type="file" multiple accept="image/*" onChange={handleImageInput} disabled={isDisabled[mode]} />
-      </UploadButton>
       {!!images.length && (
         <Carousel>
-          {images.map(img => (
-            <ImageBox key={img.key} onRemove={() => handleImageDeletion(img.key)} url={img.url} />
+          {images.map((img, index) => (
+            <ImageBox key={index} onRemove={() => handleImageDeletion(img.key)} url={img.url} hideDeleteButton={isDisabled[mode]} />
           ))}
         </Carousel>
       )}
-      <Field
-        text="Price"
-        value={state.totalPrice}
-        setter={value => setState({ ...state, totalPrice: value })}
-        type="number"
-        disabled={isDisabled[mode]}
-      />
+      {mode !== 'VIEW' && (
+        <UploadButton>
+          <label htmlFor="imageUpload">Upload images</label>
+          <input id="imageUpload" type="file" multiple accept="image/*" onChange={handleImageInput} disabled={isDisabled[mode]} />
+        </UploadButton>
+      )}
+      <Field text="Item name" value={state.itemName} setter={value => setState({ ...state, itemName: value })} disabled={isDisabled[mode]} />
+      <Field text="Shop" value={state.shopName} setter={value => setState({ ...state, shopName: value })} disabled={isDisabled[mode]} />
+      <Field text="Date" value={state.date} setter={value => setState({ ...state, date: value })} type="date" disabled={isDisabled[mode]} />
+      <Field text="Price" value={state.totalPrice} setter={value => setState({ ...state, totalPrice: value })} type="number" disabled={isDisabled[mode]} />
       <Field
         text="Warranty Period (in months)"
         value={state.warrantyPeriod}

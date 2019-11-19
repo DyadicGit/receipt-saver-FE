@@ -29,7 +29,7 @@ export const selectReceiptAndLoadItsImages: SelectReceipt = receiptStore.actionC
           type: 'RECEIPT_SELECTED',
           payload: {
             id: receiptId,
-            images: imageResponses ? imageResponses.map(resp => ({ file: undefined, key: resp.key, url: toUrl(resp.buffer.data, resp.contentType) })) : []
+            images: imageResponses ? imageResponses.map(resp => ({ file: undefined, key: resp.key, url: toUrl(resp.buffer.data, resp.contentType), userUploaded: false })) : []
           }
         };
       })

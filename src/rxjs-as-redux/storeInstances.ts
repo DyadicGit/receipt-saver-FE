@@ -13,7 +13,7 @@ export interface InitialState {
   selectedReceipt: SelectedReceiptState | null;
 }
 export type SelectedReceiptState = { id: string; images: ImageState[] };
-export type ImageState = { key: string | undefined; url: string; file: File | undefined };
+export type ImageState = { key: string | undefined; url: string; file: File | undefined, userUploaded: boolean };
 
 export const initState: InitialState = { isLoading: true, receipts: { byId: {}, order: [] }, selectedReceipt: null };
 

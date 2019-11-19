@@ -36,7 +36,7 @@ export const XButton = styled.button`
   }
 `;
 
-type UploadButtonProps = { red?: boolean, disabled: boolean }
+type UploadButtonProps = { red?: boolean }
 export const UploadButton = styled.div`
   label {
     display: inline-block;
@@ -52,8 +52,8 @@ export const UploadButton = styled.div`
     text-align: center;
     transition: all 0.2s;
     :hover {
-      color: ${(props: UploadButtonProps) => (props.disabled ? 'inherit' : 'black')};
-      background-color: ${(props: UploadButtonProps) => (props.disabled ? 'inherit' : 'white')};
+      color: black;
+      background-color: white;
     }
   }
   input {
