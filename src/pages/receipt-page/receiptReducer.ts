@@ -39,6 +39,6 @@ export default (state: GlobalState, action: Action) =>
         byId: { ...state.receipts.byId, [action.payload.id]: action.payload },
         order: [action.payload.id, ...state.receipts.order]
       },
-      selectedReceipt: {...state.selectedReceipt, id: action.payload.id}
+      selectedReceipt: {id: action.payload.id, images: action.payload.images}
     },
   }[action.type] || state);

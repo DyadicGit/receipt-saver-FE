@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Receipt } from '../../../config/DomainTypes';
 import { createReceipt, editReceipt } from '../receiptActions';
 import Field from '../../../components/InputField';
@@ -29,16 +30,16 @@ const readFile = (file: File): Observable<ReadResult> =>
     return reader.readAsDataURL(file);
   });
 
-type ImageBoxProps = { onRemove: () => void; url: string; hideDeleteButton: boolean };
-const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
+type ImageBoxProps = { onRemove: (imgKey) => void; url: string; imgKey: string; hideDeleteButton: boolean };
+const ImageBox = ({ onRemove, url, imgKey, hideDeleteButton }: ImageBoxProps) => {
   return (
     <ImgContainer>
-      {!hideDeleteButton && <XButton onClick={onRemove}>X</XButton>}
+      {!hideDeleteButton && <XButton onClick={() => onRemove(imgKey)}>X</XButton>}
       <LazyImage src={url} alt="image" />
     </ImgContainer>
   );
 };
-const toImageState = ({ file, result }: ReadResult): Observable<ImageState> => of({ key: undefined, file, url: result, userUploaded: true });
+const toImageState = ({ file, result }: ReadResult, index): Observable<ImageState> => of({ key: index, file, url: result, userUploaded: true });
 
 const stateFromReceipt = (receipt: Receipt) => ({
   itemName: (receipt && receipt.itemName) || '',
@@ -63,6 +64,7 @@ type ReceiptFormState = {
   warrantyPeriod: number;
 };
 const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: ReceiptFormProps) => {
+  const history = useHistory();
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
   useEffect(() => setState(stateFromReceipt(loadedReceipt)), [loadedReceipt]);
 
@@ -77,35 +79,41 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       ...loadedReceipt,
       shopName: state.shopName,
       itemName: state.itemName,
-      images: images.filter(s => !s.userUploaded),
+      images: images.filter(s => !s.userUploaded).map(s => s.key).join('/'),
       buyDate: Date.parse(`${state.date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
     Object.keys(receiptData).forEach(key => formData.set(key, receiptData[key]));
-    images.forEach(image => formData.append(AttachmentFieldName.RECEIPT, image.file as any));
+    images.filter(s => s.userUploaded).forEach(image => formData.append(AttachmentFieldName.RECEIPT, image.file as any));
 
-    if (mode === 'EDIT') editReceipt(formData);
-    if (mode === 'CREATE') createReceipt(formData);
-    setMode('VIEW');
+    if (mode === 'EDIT') {
+      editReceipt(formData);
+      setMode('VIEW');
+    }
+    if (mode === 'CREATE') {
+      createReceipt(formData);
+      history.push('/receipt');
+    }
   };
 
   const handleImageInput = e => {
     const files: File[] = Array.from(e.target.files);
-    forkJoin(files.map(file => readFile(file).pipe(switchMap(toImageState)))).subscribe(
+    const lastIndex = Math.max(...(images.filter(s => s.userUploaded).map(s => toNumber(s.key || 0)) || [0]));
+    forkJoin(files.map(file => readFile(file).pipe(switchMap((value, i) => toImageState(value, i + lastIndex + 1))))).subscribe(
       newImages => setImages([...images, ...newImages]),
       error => console.error(error)
     );
   };
 
-  const handleImageDeletion = key => setImages(images.filter(img => img.key !== key));
+  const handleImageDeletion = key => {setImages(images.filter(img => img.key !== key));};
 
   return (
     <form id={formId} onSubmit={handleSubmit}>
-      {!!images.length && (
+      {!!images && !!images.length && (
         <Carousel>
           {images.map((img, index) => (
-            <ImageBox key={index} onRemove={() => handleImageDeletion(img.key)} url={img.url} hideDeleteButton={isDisabled[mode]} />
+            <ImageBox key={index} imgKey={img.key ? img.key.toString() : '0'} onRemove={handleImageDeletion} url={img.url} hideDeleteButton={isDisabled[mode]} />
           ))}
         </Carousel>
       )}

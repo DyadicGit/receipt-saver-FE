@@ -31,7 +31,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const fromParams = useParams(), fromParamsId = fromParams.id;
   const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
-    if (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId)) {
+    if (fromParamsId && (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId))) {
       selectReceiptAndLoadItsImages(fromParamsId)
     }
   }, [selectedReceipt, fromParamsId]);

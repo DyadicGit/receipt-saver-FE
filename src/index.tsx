@@ -4,7 +4,7 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { catchError, scan, tap } from 'rxjs/operators';
 import App from './App';
-import { initState, receiptStore, StateContext } from './rxjs-as-redux/storeInstances';
+import { receiptStore, StateContext } from './rxjs-as-redux/storeInstances';
 import { merge, Observable, of } from 'rxjs';
 
 const container = document.getElementById('root');
@@ -12,7 +12,7 @@ const appStores$: Observable<any> = merge(receiptStore.store$).pipe(
   scan((acc, state) => ({ ...acc, ...state })),
   catchError(err => {
     console.log('error', err);
-    return of(initState)
+    return of({serverDead: true})
   }),
   tap(state => {
     console.log(state);
