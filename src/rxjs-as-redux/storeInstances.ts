@@ -10,10 +10,13 @@ import { Observable } from 'rxjs';
 export interface InitialState {
   isLoading: boolean;
   receipts: NormalizedReceipts;
-  selectedReceipt: string | null;
+  selectedReceipt: SelectedReceiptState | null;
+  serverDead: boolean;
 }
+export type SelectedReceiptState = { id: string; images: ImageState[] };
+export type ImageState = { key: string ; url: string; file: File | undefined, userUploaded: boolean };
 
-const initState: InitialState = { isLoading: true, receipts: {byId: {}, order: []}, selectedReceipt: null };
+export const initState: InitialState = { isLoading: true, receipts: { byId: {}, order: [] }, selectedReceipt: null, serverDead: false };
 
 const initAsyncState: Observable<InitialState> = ajax(getAllReceiptsApi).pipe(
   map(({ response: receipts }) => {

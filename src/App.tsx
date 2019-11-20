@@ -5,6 +5,7 @@ import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
 import PetalSpinner from './components/PetalSpinner';
 import { Background } from './pages/page-wrapper/RoutedPage.styles';
+
 const ReceiptList = lazy(() => import('./pages/receipt-page/List/ReceiptList'));
 
 const transitionDuration = 400; // 1s also in page.transition.css
@@ -35,29 +36,32 @@ const App = ({ state }) => {
   return (
     <>
       <Background />
-      <BrowserRouter>
-        {state && state.isLoading && <PetalSpinner />}
-        <Suspense fallback={<PetalSpinner />}>
-          <Switch>
-            <Route exact path="/">
-              <Redirect to="/receipt" />
-            </Route>
-            <Route path="/receipt*">
-              <ReceiptSwitcher state={state} />
-            </Route>
-            <Route exact path="/helloWorld" component={lazy(() => import('./pages/HelloWorldPage'))} />
-            <Route path="/404">
-              <Page404 code="404" />
-            </Route>
-            <Route exact path="/index.html">
-              <Redirect to="/receipt" />
-            </Route>
-            <Route>
-              <Page404 code="404" />
-            </Route>
-          </Switch>
-        </Suspense>
-      </BrowserRouter>
+      {state.serverDead && <Page404 code="404" />}
+      {!state.serverDead && (
+        <BrowserRouter>
+          {state && state.isLoading && <PetalSpinner />}
+          <Suspense fallback={<PetalSpinner />}>
+            <Switch>
+              <Route exact path="/">
+                <Redirect to="/receipt" />
+              </Route>
+              <Route path="/receipt*">
+                <ReceiptSwitcher state={state} />
+              </Route>
+              <Route exact path="/helloWorld" component={lazy(() => import('./pages/HelloWorldPage'))} />
+              <Route path="/404">
+                <Page404 code="404" />
+              </Route>
+              <Route exact path="/index.html">
+                <Redirect to="/receipt" />
+              </Route>
+              <Route>
+                <Page404 code="404" />
+              </Route>
+            </Switch>
+          </Suspense>
+        </BrowserRouter>
+      )}
     </>
   );
 };

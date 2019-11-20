@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { GlobalState, Receipt } from '../../../config/DomainTypes';
-import { selectReceipt } from '../receiptActions';
 import { useHistory } from 'react-router-dom';
 import cx from 'classnames';
 import RoutedPage from '../../page-wrapper/RoutedPage';
@@ -17,7 +16,7 @@ const warrantyTimer = (buyDate: Date, warrantyPeriod: number = 0) => {
 
 const receiptLine = (history: any, receipt: Receipt, selectedReceipt) => {
   const date = new Date(toNumber(receipt.buyDate || receipt.creationDate));
-  const visited: boolean = selectedReceipt && receipt.id === selectedReceipt;
+  const visited: boolean = selectedReceipt && selectedReceipt.id && receipt.id === selectedReceipt.id;
   return (
     <Line visited={visited} className={cx('selectEffect', 'triangleEffect')} key={receipt.id} onClick={() => redirectToReceipt(history, receipt.id)}>
       <YellowDate>
@@ -33,7 +32,6 @@ const receiptLine = (history: any, receipt: Receipt, selectedReceipt) => {
 
 const redirectToReceipt = (history: any, receiptId: string) => {
   history.push(`/receipt/${receiptId}`);
-  selectReceipt(receiptId);
 };
 
 export default ({ state: { receipts, selectedReceipt } }: { state: GlobalState }) => {
@@ -41,7 +39,7 @@ export default ({ state: { receipts, selectedReceipt } }: { state: GlobalState }
   const refPage: any = useRef(null);
   useEffect(() => {
     if (refPage && refPage.current) {
-      const partial = receipts.order.findIndex(rId => rId === selectedReceipt) / receipts.order.length;
+      const partial = receipts.order.findIndex(rId => selectedReceipt && selectedReceipt.id && rId === selectedReceipt.id) / receipts.order.length;
       refPage.current.scrollTo(0, refPage.current.scrollHeight * partial);
     }
   }, [selectedReceipt, receipts]);
