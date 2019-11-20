@@ -1,5 +1,14 @@
 import { Action } from '../../rxjs-as-redux/RxStore';
-import { GlobalState } from "../../config/DomainTypes";
+import { GlobalState, NormalizedReceipt, Receipt } from '../../config/DomainTypes';
+import { ImageState, SelectedReceiptState } from '../../rxjs-as-redux/storeInstances';
+
+export type EditCreateReceiptAction = Action & { payload: { receipt: Receipt; images: ImageState[] } };
+const updateSelectedReceipt = (action: EditCreateReceiptAction): SelectedReceiptState => {
+  return { id: action.payload.receipt && action.payload.receipt.id, images: action.payload.images };
+};
+const updateNormalizedReceipt = (action: EditCreateReceiptAction): NormalizedReceipt => {
+  return { [action.payload.receipt && action.payload.receipt.id]: action.payload.receipt };
+};
 
 export default (state: GlobalState, action: Action) =>
   ({
@@ -20,7 +29,11 @@ export default (state: GlobalState, action: Action) =>
     RECEIPT_EDITED: {
       ...state,
       isLoading: false,
-      receipts: { ...state.receipts, byId: { ...state.receipts.byId, [action.payload.id]: action.payload } }
+      receipts: {
+        ...state.receipts,
+        byId: { ...state.receipts.byId, ...updateNormalizedReceipt(action) }
+      },
+      selectedReceipt: updateSelectedReceipt(action)
     },
     RECEIPT_DELETED: {
       ...state,
@@ -36,9 +49,9 @@ export default (state: GlobalState, action: Action) =>
       isLoading: false,
       receipts: {
         ...state.receipts,
-        byId: { ...state.receipts.byId, [action.payload.id]: action.payload },
-        order: [action.payload.id, ...state.receipts.order]
+        byId: { ...state.receipts.byId, ...updateNormalizedReceipt(action) },
+        order: [action.payload.receipt && action.payload.receipt.id, ...state.receipts.order]
       },
-      selectedReceipt: {id: action.payload.id, images: action.payload.images}
-    },
+      selectedReceipt: updateSelectedReceipt(action)
+    }
   }[action.type] || state);

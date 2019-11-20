@@ -8,7 +8,6 @@ import { monthsToSeconds, secondsToMonths, toNumber } from '../utils';
 import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { AttachmentFieldName } from '../../../config/endpoints';
 import { ImageState } from '../../../rxjs-as-redux/storeInstances';
 import LazyImage from '../../../components/LazyImage';
 
@@ -34,7 +33,7 @@ type ImageBoxProps = { onRemove: () => void; url: string; hideDeleteButton: bool
 const ImageBox = ({ onRemove, url,  hideDeleteButton }: ImageBoxProps) => {
   return (
     <ImgContainer>
-      {!hideDeleteButton && <XButton onClick={() => onRemove()}>X</XButton>}
+      {!hideDeleteButton && <XButton type="button" onClick={onRemove}>X</XButton>}
       <LazyImage src={url} alt="image" />
     </ImgContainer>
   );
@@ -74,28 +73,24 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
   const handleSubmit = e => {
     e.preventDefault();
     // console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
-    const formData = new FormData();
-    const receiptData = {
+    const receipt: Receipt = {
       ...loadedReceipt,
       shopName: state.shopName,
       itemName: state.itemName,
       images: images
         .filter(s => !s.userUploaded)
-        .map(s => s.key)
-        .join('/'),
+        .map(s => s.key),
       buyDate: Date.parse(`${state.date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
-    Object.keys(receiptData).forEach(key => formData.set(key, receiptData[key]));
-    images.filter(s => s.userUploaded).forEach(image => formData.append(AttachmentFieldName.RECEIPT, image.file as any));
-
+    const imageFiles = images.filter(s => s.userUploaded).map(s => s.file) as File[];
     if (mode === 'EDIT') {
-      editReceipt(formData);
+      editReceipt(receipt, imageFiles);
       setMode('VIEW');
     }
     if (mode === 'CREATE') {
-      createReceipt(formData);
+      createReceipt(receipt, imageFiles);
       history.push('/receipt');
     }
   };
@@ -119,7 +114,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
           {images.map((img, index) => (
             <ImageBox
               key={index}
-              onRemove={() => () => handleImageDeletion(img.key)}
+              onRemove={() => handleImageDeletion(img.key)}
               url={img.url}
               hideDeleteButton={isDisabled[mode]}
             />

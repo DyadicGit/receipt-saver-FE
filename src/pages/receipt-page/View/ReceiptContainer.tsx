@@ -29,7 +29,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [showConf, setShowConf] = useState(false);
   const fromParams = useParams(), fromParamsId = fromParams.id;
-  const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts.byId[fromParamsId] : undefined);
+  const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts && receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
     if (fromParamsId && (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId))) {
       selectReceiptAndLoadItsImages(fromParamsId)

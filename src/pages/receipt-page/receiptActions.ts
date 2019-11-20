@@ -1,9 +1,18 @@
 import { ajax } from 'rxjs/ajax';
 import { map } from 'rxjs/operators';
-import { receiptStore, SelectedReceiptState } from '../../rxjs-as-redux/storeInstances';
+import { ImageState, receiptStore, SelectedReceiptState } from '../../rxjs-as-redux/storeInstances';
 import { Action, ResolvableAction } from '../../rxjs-as-redux/RxStore';
-import { createReceiptApi, deleteReceiptApi, editReceiptApi, getAllReceiptsApi, getImageByReceiptIdApi } from '../../config/endpoints';
+import {
+  AttachmentFieldName,
+  createReceiptApi,
+  deleteReceiptApi,
+  editReceiptApi,
+  getAllReceiptsApi,
+  getImagesByReceiptIdApi
+} from '../../config/endpoints';
 import { toUrl } from '../../config/utils';
+import { ImageData, Receipt, ReceiptWithImages } from '../../config/DomainTypes';
+import { EditCreateReceiptAction } from "./receiptReducer";
 
 type NoParams = () => ResolvableAction;
 export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
@@ -18,18 +27,21 @@ export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
   };
 });
 
-type ImageResponse = { buffer: { type: string; data: Buffer }; contentType: string; key: string };
+const toImageStateList = (imagesData: ImageData[]): ImageState[] => {
+  return imagesData.map(resp => ({ file: undefined, key: resp.key, url: toUrl(resp.buffer.data, resp.contentType), userUploaded: false })) || [];
+};
+
 type SelectReceipt = (receiptId: string | null) => Action;
 export const selectReceiptAndLoadItsImages: SelectReceipt = receiptStore.actionCreator((receiptId: string) => {
   return {
     type: 'LOADING',
-    payload: ajax.get(getImageByReceiptIdApi(receiptId)).pipe(
-      map(({ response: imageResponses }: { response: ImageResponse[] }): Action & { payload: SelectedReceiptState } => {
+    payload: ajax.get(getImagesByReceiptIdApi(receiptId)).pipe(
+      map(({ response: imageResponses }: { response: ImageData[] }): Action & { payload: SelectedReceiptState } => {
         return {
           type: 'RECEIPT_SELECTED',
           payload: {
             id: receiptId,
-            images: imageResponses ? imageResponses.map(resp => ({ file: undefined, key: resp.key, url: toUrl(resp.buffer.data, resp.contentType), userUploaded: false })) : []
+            images: toImageStateList(imageResponses)
           }
         };
       })
@@ -37,31 +49,33 @@ export const selectReceiptAndLoadItsImages: SelectReceipt = receiptStore.actionC
   };
 });
 
-type EditReceipt = (editedReceipt: FormData) => Action;
-export const editReceipt: EditReceipt = receiptStore.actionCreator((editedReceipt: FormData) => {
+const toMultipartFormData = (receipt: Receipt, uploadedImages: File[]): FormData => {
+  const formData = new FormData();
+  formData.set('receipt', JSON.stringify(receipt));
+  uploadedImages.forEach(image => formData.append(AttachmentFieldName.RECEIPT, image as any));
+  return formData;
+};
+type EditReceipt = (receipt: Receipt, uploadedImages: File[]) => Action;
+export const editReceipt: EditReceipt = receiptStore.actionCreator((receipt: Receipt, uploadedImages: File[]) => {
   return {
     type: 'LOADING',
-    payload: ajax.put(editReceiptApi, editedReceipt).pipe(
-      map(
-        ({ response: receipt }): Action => ({
-          type: 'RECEIPT_EDITED',
-          payload: receipt
-        })
-      )
+    payload: ajax.put(editReceiptApi, toMultipartFormData(receipt, uploadedImages)).pipe(
+      map(({ response }: { response: ReceiptWithImages }): EditCreateReceiptAction => ({
+        type: 'RECEIPT_EDITED',
+        payload: { receipt: response.receipt, images: toImageStateList(response.images) }
+      }))
     )
   };
 });
-type CreateReceipt = (createdReceipt: FormData) => Action;
-export const createReceipt: CreateReceipt = receiptStore.actionCreator((createdReceipt: FormData) => {
+type CreateReceipt = (receipt: Receipt, uploadedImages: File[]) => Action & { payload: ReceiptWithImages };
+export const createReceipt: CreateReceipt = receiptStore.actionCreator((receipt: Receipt, uploadedImages: File[]) => {
   return {
     type: 'LOADING',
-    payload: ajax.post(createReceiptApi, createdReceipt).pipe(
-      map(
-        ({ response: receipt }): Action => ({
-          type: 'RECEIPT_CREATED',
-          payload: receipt
-        })
-      )
+    payload: ajax.post(createReceiptApi, toMultipartFormData(receipt, uploadedImages)).pipe(
+      map(({ response }: { response: ReceiptWithImages }): EditCreateReceiptAction => ({
+        type: 'RECEIPT_CREATED',
+        payload: { receipt: response.receipt, images: toImageStateList(response.images) }
+      }))
     )
   };
 });

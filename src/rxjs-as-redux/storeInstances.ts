@@ -14,7 +14,7 @@ export interface InitialState {
   serverDead: boolean;
 }
 export type SelectedReceiptState = { id: string; images: ImageState[] };
-export type ImageState = { key: string | undefined; url: string; file: File | undefined, userUploaded: boolean };
+export type ImageState = { key: string ; url: string; file: File | undefined, userUploaded: boolean };
 
 export const initState: InitialState = { isLoading: true, receipts: { byId: {}, order: [] }, selectedReceipt: null, serverDead: false };
 

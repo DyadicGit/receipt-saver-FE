@@ -1,11 +1,8 @@
-import { InitialState } from "../rxjs-as-redux/storeInstances";
+import { InitialState } from '../rxjs-as-redux/storeInstances';
 
-export interface Receipt extends RequestReceipt {
+export interface Receipt {
   id: string;
   creationDate: number;
-}
-
-export interface RequestReceipt {
   images: string[];
   shopName: string;
   itemId: string;
@@ -16,11 +13,13 @@ export interface RequestReceipt {
   userID: string;
 }
 
+export type ReceiptWithImages = { receipt: Receipt; images: ImageData[] };
+export type ImageData = { buffer: { type: string; data: Buffer }; contentType: string; key: string };
+
+export type NormalizedReceipt = { [id: string]: Receipt }
 export interface NormalizedReceipts {
-  byId: { [id: string]: Receipt };
+  byId: NormalizedReceipt;
   order: string[];
 }
 
-export interface GlobalState extends InitialState {
-
-}
+export interface GlobalState extends InitialState {}
