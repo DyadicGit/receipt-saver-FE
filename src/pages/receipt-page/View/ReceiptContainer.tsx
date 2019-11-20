@@ -31,7 +31,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const fromParams = useParams(), fromParamsId = fromParams.id;
   const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts && receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
-    if (fromParamsId && (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId))) {
+    if (mode !== 'CREATE' && fromParamsId && (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId))) {
       selectReceiptAndLoadItsImages(fromParamsId)
     }
   }, [selectedReceipt, fromParamsId]);
@@ -51,6 +51,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   });
 
   const formId = (receipt && receipt.id) || 'create';
+  const loadedImages = (selectedReceipt && mode !== 'CREATE') ? selectedReceipt.images : [];
   return (
     <>
       {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
@@ -63,7 +64,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
           ]}
           refBody={refForSwipeBack}
         >
-          <ReceiptForm formId={formId} loadedReceipt={receipt as any} loadedImages={selectedReceipt ? selectedReceipt.images : []} mode={mode} setMode={setMode} />
+          <ReceiptForm formId={formId} loadedReceipt={receipt as any} loadedImages={loadedImages} mode={mode} setMode={setMode} />
         </RoutedPage>
       )}
       {receipt && mode === 'VIEW' && (
