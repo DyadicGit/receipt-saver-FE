@@ -52,9 +52,6 @@ const App = ({ state }) => {
               <Route path="/404">
                 <Page404 code="404" />
               </Route>
-              <Route exact path="/index.html">
-                <Redirect to="/receipt" />
-              </Route>
               <Route>
                 <Page404 code="404" />
               </Route>
