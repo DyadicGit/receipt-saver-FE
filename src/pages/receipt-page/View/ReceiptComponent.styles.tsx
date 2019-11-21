@@ -8,30 +8,29 @@ export const Carousel = styled.div`
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 `;
+const imgContainerSidePadding = '10px';
 export const ImgContainer = styled.div`
   height: 100%;
-  padding: 0 10px 0 10px;
+  padding: 0 ${imgContainerSidePadding} 0 ${imgContainerSidePadding};
   position: relative;
   scroll-snap-align: start;
 `;
 export const XButton = styled.button`
   position: absolute;
-  top: 0;
-  right: 10px;
+  top: 5px;
+  width: calc(100% - ${imgContainerSidePadding} - ${imgContainerSidePadding});
   display: inline-block;
-  padding: 4px 2vw;
+  padding: 10px 2vw;
   border: 0.1em solid white;
-  margin: 0.5em;
   border-radius: 0.12em;
   box-sizing: border-box;
   text-decoration: none;
   font-weight: bold;
-  color: white;
-  background-color: inherit;
   text-align: center;
   transition: all 0.2s;
-  :hover {
-    color: white;
+  color: white;
+  background-color: rgba(255,0,0,0.4);
+  :hover, :active {
     background-color: red;
   }
 `;

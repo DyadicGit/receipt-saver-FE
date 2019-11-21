@@ -14,7 +14,7 @@ export interface Receipt {
 }
 
 export type ReceiptWithImages = { receipt: Receipt; images: ImageData[] };
-export type ImageData = { buffer: { type: string; data: Buffer }; contentType: string; key: string };
+export type ImageData = { url: string; key: string };
 
 export type NormalizedReceipt = { [id: string]: Receipt }
 export interface NormalizedReceipts {

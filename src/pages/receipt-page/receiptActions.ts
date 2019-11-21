@@ -10,7 +10,6 @@ import {
   getAllReceiptsApi,
   getImagesByReceiptIdApi
 } from '../../config/endpoints';
-import { toUrl } from '../../config/utils';
 import { ImageData, Receipt, ReceiptWithImages } from '../../config/DomainTypes';
 import { EditCreateReceiptAction } from "./receiptReducer";
 
@@ -28,7 +27,7 @@ export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
 });
 
 const toImageStateList = (imagesData: ImageData[]): ImageState[] => {
-  return imagesData.map(resp => ({ file: undefined, key: resp.key, url: toUrl(resp.buffer.data, resp.contentType), userUploaded: false })) || [];
+  return imagesData.map(({ key, url }) => ({ file: undefined, key, url, userUploaded: false })) || [];
 };
 
 type SelectReceipt = (receiptId: string | null) => Action;
