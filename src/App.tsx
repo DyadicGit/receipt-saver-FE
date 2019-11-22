@@ -5,6 +5,7 @@ import ReceiptContainer from './pages/receipt-page/View/ReceiptContainer';
 import Page404 from './pages/Page404';
 import PetalSpinner from './components/PetalSpinner';
 import { Background } from './pages/page-wrapper/RoutedPage.styles';
+import { GlobalState } from "./config/DomainTypes";
 
 const ReceiptList = lazy(() => import('./pages/receipt-page/List/ReceiptList'));
 
@@ -32,12 +33,12 @@ const ReceiptSwitcher = ({ state }) => {
   );
 };
 
-const App = ({ state }) => {
+const App = ({ state }: {state: GlobalState}) => {
   return (
     <>
       <Background />
-      {state.serverDead && <Page404 code="404" />}
-      {!state.serverDead && (
+      {state.seriousError && <Page404 code="404" />}
+      {!state.seriousError && (
         <BrowserRouter>
           {state && state.isLoading && <PetalSpinner />}
           <Suspense fallback={<PetalSpinner />}>

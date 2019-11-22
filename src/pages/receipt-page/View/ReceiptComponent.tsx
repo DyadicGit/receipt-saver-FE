@@ -108,7 +108,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
   };
 
   return (
-    <form id={formId} onSubmit={handleSubmit}>
+    <form id={formId} onSubmit={handleSubmit} autoComplete="off">
       {!!images && !!images.length && (
         <Carousel>
           {images.map((img, index) => (
@@ -123,7 +123,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       )}
       {mode !== 'VIEW' && (
         <UploadButton>
-          <label htmlFor="imageUpload">Upload images</label>
+          <label htmlFor="imageUpload">select images</label>
           <input id="imageUpload" type="file" multiple accept="image/*" onChange={handleImageInput} disabled={isDisabled[mode]} />
         </UploadButton>
       )}

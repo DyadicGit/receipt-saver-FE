@@ -12,6 +12,7 @@ import {
 } from '../../config/endpoints';
 import { ImageData, Receipt, ReceiptWithImages } from '../../config/DomainTypes';
 import { EditCreateReceiptAction } from "./receiptReducer";
+import { merge, of } from "rxjs";
 
 type NoParams = () => ResolvableAction;
 export const getAllReceipts: NoParams = receiptStore.actionCreator(() => {
@@ -34,7 +35,9 @@ type SelectReceipt = (receiptId: string | null) => Action;
 export const selectReceiptAndLoadItsImages: SelectReceipt = receiptStore.actionCreator((receiptId: string) => {
   return {
     type: 'LOADING',
-    payload: ajax.get(getImagesByReceiptIdApi(receiptId)).pipe(
+    payload: merge(of({
+      type: 'RECEIPT_SELECTED_CLEARED'
+    }),ajax.get(getImagesByReceiptIdApi(receiptId)).pipe(
       map(({ response: imageResponses }: { response: ImageData[] }): Action & { payload: SelectedReceiptState } => {
         return {
           type: 'RECEIPT_SELECTED',
@@ -44,9 +47,10 @@ export const selectReceiptAndLoadItsImages: SelectReceipt = receiptStore.actionC
           }
         };
       })
-    )
+    ))
   };
 });
+export const dispatchSeriousError = receiptStore.actionCreator(() => ({type: 'ERROR'}));
 
 const toMultipartFormData = (receipt: Receipt, uploadedImages: File[]): FormData => {
   const formData = new FormData();
