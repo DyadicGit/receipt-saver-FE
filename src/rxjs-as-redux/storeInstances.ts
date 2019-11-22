@@ -11,12 +11,12 @@ export interface InitialState {
   isLoading: boolean;
   receipts: NormalizedReceipts;
   selectedReceipt: SelectedReceiptState | null;
-  serverDead: boolean;
+  seriousError: boolean;
 }
 export type SelectedReceiptState = { id: string; images: ImageState[] };
 export type ImageState = { key: string ; url: string; file: File | undefined, userUploaded: boolean };
 
-export const initState: InitialState = { isLoading: true, receipts: { byId: {}, order: [] }, selectedReceipt: null, serverDead: false };
+export const initState: InitialState = { isLoading: true, receipts: { byId: {}, order: [] }, selectedReceipt: null, seriousError: false };
 
 const initAsyncState: Observable<InitialState> = ajax(getAllReceiptsApi).pipe(
   map(({ response: receipts }) => {

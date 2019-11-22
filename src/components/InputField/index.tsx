@@ -22,7 +22,7 @@ const InputField = ({ text, value, setter, type = 'text', disabled = false }: Fi
   return (
     <div className={styles.inputField}>
       <label className={cx(!disabled && styles.editable)} htmlFor={id}>{text}
-        <input id={id} type={type} value={value} onChange={e => setter(e.target.value)} disabled={disabled} onFocus={clearZeros} />
+        <input id={id} type={type} value={value} onChange={e => setter(e.target.value)} disabled={disabled} onFocus={clearZeros} autoComplete="off"/>
       </label>
     </div>
   );

@@ -5,7 +5,7 @@ import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
-import { deleteReceipt, selectReceiptAndLoadItsImages } from '../receiptActions';
+import { deleteReceipt, dispatchSeriousError, selectReceiptAndFetchItsImages } from '../receiptActionCreators';
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -31,10 +31,13 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const fromParams = useParams(), fromParamsId = fromParams.id;
   const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts && receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
-    if (fromParamsId && (!selectedReceipt || (selectedReceipt && selectedReceipt.id !== fromParamsId))) {
-      selectReceiptAndLoadItsImages(fromParamsId)
+    if (fromParamsId && receipt) {
+      selectReceiptAndFetchItsImages(fromParamsId)
     }
-  }, [selectedReceipt, fromParamsId]);
+    if (fromParamsId && !receipt) {
+      dispatchSeriousError()
+    }
+  }, [fromParamsId, receipt]);
   const history = useHistory();
   const handleConfirmedDelete = receiptId => {
     history.push(`/receipt`);

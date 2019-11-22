@@ -11,8 +11,8 @@ const container = document.getElementById('root');
 const appStores$: Observable<any> = merge(receiptStore.store$).pipe(
   scan((acc, state) => ({ ...acc, ...state })),
   catchError(err => {
-    console.error('Server Dead', err);
-    return of({serverDead: true})
+    console.error('Server Error', err);
+    return of({seriousError: true})
   }),
   tap(state => {
     console.log(state);
