@@ -5,7 +5,7 @@ import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
-import { deleteReceipt, dispatchSeriousError, selectReceiptAndLoadItsImages } from '../receiptActions';
+import { deleteReceipt, dispatchSeriousError, selectReceiptAndFetchItsImages } from '../receiptActionCreators';
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -32,7 +32,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts && receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
     if (fromParamsId && receipt) {
-      selectReceiptAndLoadItsImages(fromParamsId)
+      selectReceiptAndFetchItsImages(fromParamsId)
     }
     if (fromParamsId && !receipt) {
       dispatchSeriousError()

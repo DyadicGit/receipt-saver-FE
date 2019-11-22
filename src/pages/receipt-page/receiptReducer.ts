@@ -1,16 +1,16 @@
-import { Action } from '../../rxjs-as-redux/RxStore';
+import { SyncAction } from '../../rxjs-as-redux/RxStore';
 import { GlobalState, NormalizedReceipt, Receipt } from '../../config/DomainTypes';
 import { ImageState, SelectedReceiptState } from '../../rxjs-as-redux/storeInstances';
 
-export type EditCreateReceiptAction = Action & { payload: { receipt: Receipt; images: ImageState[] } };
-const updateSelectedReceipt = (action: EditCreateReceiptAction): SelectedReceiptState => {
+export type EditCreateReceiptPayload = { receipt: Receipt; images: ImageState[] };
+const updateSelectedReceipt = (action: SyncAction<EditCreateReceiptPayload>): SelectedReceiptState => {
   return { id: action.payload.receipt.id, images: action.payload.images };
 };
-const updateNormalizedReceipt = (action: EditCreateReceiptAction): NormalizedReceipt => {
+const updateNormalizedReceipt = (action: SyncAction<EditCreateReceiptPayload>): NormalizedReceipt => {
   return { [action.payload.receipt.id]: action.payload.receipt };
 };
 
-export default (state: GlobalState, action: Action) =>
+export default (state: GlobalState, action) =>
   ({
     LOADING: () => ({
       ...state,

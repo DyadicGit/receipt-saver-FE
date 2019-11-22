@@ -1,13 +1,15 @@
 import { BehaviorSubject, from, isObservable, Observable } from 'rxjs';
 import { flatMap, scan } from 'rxjs/operators';
 
-export type Action = {
+export type SyncAction<P> = {
   type: string;
-  payload: any;
+  payload: P;
 };
-export type ResolvableAction = {
+export type AsyncAction<P> = Observable<SyncAction<P>>
+
+export type Action<SyncOrAsync> = {
   type: string;
-  payload: Observable<Action>;
+  payload: SyncOrAsync;
 };
 
 export const createStore = (initState, reducer) => {
@@ -17,8 +19,8 @@ export const createStore = (initState, reducer) => {
       flatMap(action => (isObservable(action) ? action : from([action]))),
       scan(reducer)
     ),
-    actionCreator: func => (...args) => {
-      const action: Action = func(...args);
+    actionCreator: <SyncOrAsync>(func) => (...args) => {
+      const action: Action<SyncOrAsync> = func(...args);
       action$.next(action);
       if (isObservable(action.payload)) action$.next(action.payload);
       return action;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Receipt } from '../../../config/DomainTypes';
-import { createReceipt, editReceipt } from '../receiptActions';
+import { createReceipt, editReceipt } from '../receiptActionCreators';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { monthsToSeconds, secondsToMonths, toNumber } from '../utils';
