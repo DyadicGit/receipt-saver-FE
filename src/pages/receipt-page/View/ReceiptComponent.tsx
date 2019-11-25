@@ -4,7 +4,8 @@ import { Receipt } from '../../../config/DomainTypes';
 import { createReceipt, editReceipt } from '../receiptActionCreators';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
-import { monthsToSeconds, secondsToMonths, toNumber } from '../utils';
+import Compressor from 'compressorjs';
+import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
 import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -12,28 +13,16 @@ import { ImageState } from '../../../rxjs-as-redux/storeInstances';
 import LazyImage from '../../../components/LazyImage';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
-type ReadResult = { file: File; result: string };
-const readFile = (file: File): Observable<ReadResult> =>
-  new Observable(obs => {
-    if (!(file instanceof File)) {
-      obs.error(new Error('`file` must be an instance of File.'));
-      return;
-    }
-    const reader = new FileReader();
-
-    reader.onerror = err => obs.error(err);
-    reader.onabort = err => obs.error(err);
-    reader.onload = () => obs.next({ file, result: reader.result as string });
-    reader.onloadend = () => obs.complete();
-
-    return reader.readAsDataURL(file);
-  });
 
 type ImageBoxProps = { onRemove: () => void; url: string; hideDeleteButton: boolean };
-const ImageBox = ({ onRemove, url,  hideDeleteButton }: ImageBoxProps) => {
+const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
   return (
     <ImgContainer>
-      {!hideDeleteButton && <XButton type="button" onClick={onRemove}>X</XButton>}
+      {!hideDeleteButton && (
+        <XButton type="button" onClick={onRemove}>
+          X
+        </XButton>
+      )}
       <LazyImage src={url} alt="image" />
     </ImgContainer>
   );
@@ -77,9 +66,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       ...loadedReceipt,
       shopName: state.shopName,
       itemName: state.itemName,
-      images: images
-        .filter(s => !s.userUploaded)
-        .map(s => s.key),
+      images: images.filter(s => !s.userUploaded).map(s => s.key),
       buyDate: Date.parse(`${state.date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
@@ -97,10 +84,16 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
 
   const handleImageInput = e => {
     const files: File[] = Array.from(e.target.files);
-    forkJoin(files.map(file => readFile(file).pipe(switchMap(toImageState)))).subscribe(
-      newImages => setImages([...images, ...newImages]),
-      error => console.error(error)
-    );
+    if (files.length) {
+      forkJoin(
+        files.map(file =>
+          compressImage(file).pipe(
+            switchMap(readFileAsBase64),
+            switchMap(toImageState)
+          )
+        )
+      ).subscribe(newImages => setImages([...images, ...newImages]), error => console.error(error));
+    }
   };
 
   const handleImageDeletion = key => {
@@ -112,12 +105,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       {!!images && !!images.length && (
         <Carousel>
           {images.map((img, index) => (
-            <ImageBox
-              key={index}
-              onRemove={() => handleImageDeletion(img.key)}
-              url={img.url}
-              hideDeleteButton={isDisabled[mode]}
-            />
+            <ImageBox key={index} onRemove={() => handleImageDeletion(img.key)} url={img.url} hideDeleteButton={isDisabled[mode]} />
           ))}
         </Carousel>
       )}
