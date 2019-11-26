@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Receipt } from '../../../config/DomainTypes';
-import { createReceipt, editReceipt } from '../receiptActionCreators';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
-import Compressor from 'compressorjs';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
 import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { ImageState } from '../../../rxjs-as-redux/storeInstances';
 import LazyImage from '../../../components/LazyImage';
+import { setGlobalLoading } from "../receiptActions";
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 
@@ -41,7 +39,7 @@ type ReceiptFormProps = {
   loadedReceipt: Receipt;
   loadedImages: ImageState[];
   mode: Mode;
-  setMode: (mode: Mode) => void;
+  uploadSubmittedForm: (receipt: Receipt, userUploadedImages: File[]) => void;
 };
 
 type ReceiptFormState = {
@@ -51,8 +49,7 @@ type ReceiptFormState = {
   totalPrice: number;
   warrantyPeriod: number;
 };
-const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: ReceiptFormProps) => {
-  const history = useHistory();
+const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, uploadSubmittedForm }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
   useEffect(() => setState(stateFromReceipt(loadedReceipt)), [loadedReceipt]);
 
@@ -62,6 +59,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
   const handleSubmit = e => {
     e.preventDefault();
     // console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
+
     const receipt: Receipt = {
       ...loadedReceipt,
       shopName: state.shopName,
@@ -72,19 +70,13 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
     const imageFiles = images.filter(s => s.userUploaded).map(s => s.file) as File[];
-    if (mode === 'EDIT') {
-      editReceipt(receipt, imageFiles);
-      setMode('VIEW');
-    }
-    if (mode === 'CREATE') {
-      createReceipt(receipt, imageFiles);
-      history.push('/receipt');
-    }
+    uploadSubmittedForm(receipt, imageFiles);
   };
 
   const handleImageInput = e => {
     const files: File[] = Array.from(e.target.files);
     if (files.length) {
+      setGlobalLoading(true);
       forkJoin(
         files.map(file =>
           compressImage(file).pipe(
@@ -92,7 +84,16 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, setMode }: Rec
             switchMap(toImageState)
           )
         )
-      ).subscribe(newImages => setImages([...images, ...newImages]), error => console.error(error));
+      ).subscribe(
+        newImages => {
+          setGlobalLoading(false);
+          setImages([...images, ...newImages]);
+        },
+        error => {
+          setGlobalLoading(false);
+          console.error(error);
+        }
+      );
     }
   };
 
