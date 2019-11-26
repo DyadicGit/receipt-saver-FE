@@ -12,10 +12,8 @@ const updateNormalizedReceipt = (action: SyncAction<EditCreateReceiptPayload>): 
 
 export default (state: GlobalState, action) =>
   ({
-    LOADING: () => ({
-      ...state,
-      isLoading: true
-    }),
+    LOADING: () => ({ ...state, isLoading: true }),
+    LOADING_SET: () => ({ ...state, isLoading: action.payload }),
     ERROR: () => ({ seriousError: true }),
     RECEIPTS_LOADED: () => ({
       ...state,

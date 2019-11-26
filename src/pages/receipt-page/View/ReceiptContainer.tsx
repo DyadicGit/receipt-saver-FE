@@ -5,7 +5,7 @@ import { GlobalState, Receipt } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
-import { deleteReceipt, dispatchSeriousError, selectReceiptAndFetchItsImages } from '../receiptActionCreators';
+import { createReceipt, deleteReceipt, dispatchSeriousError, editReceipt, selectReceiptAndFetchItsImages } from '../receiptActions';
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -28,14 +28,15 @@ const titleByMode = (mode: Mode): string =>
 const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [showConf, setShowConf] = useState(false);
-  const fromParams = useParams(), fromParamsId = fromParams.id;
-  const [receipt] = useState<Receipt | undefined>((mode !== 'CREATE') ? receipts && receipts.byId[fromParamsId] : undefined);
+  const fromParams = useParams(),
+    fromParamsId = fromParams.id;
+  const [receipt] = useState<Receipt | undefined>(mode !== 'CREATE' ? receipts && receipts.byId[fromParamsId] : undefined);
   useEffect(() => {
     if (fromParamsId && receipt) {
-      selectReceiptAndFetchItsImages(fromParamsId)
+      selectReceiptAndFetchItsImages(fromParamsId);
     }
     if (fromParamsId && !receipt) {
-      dispatchSeriousError()
+      dispatchSeriousError();
     }
   }, [fromParamsId, receipt]);
   const history = useHistory();
@@ -54,7 +55,18 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   });
 
   const formId = (receipt && receipt.id) || 'create';
-  const loadedImages = (selectedReceipt && mode !== 'CREATE') ? selectedReceipt.images : [];
+
+  const uploadSubmittedForm = (receipt: Receipt, userUploadedImages: File[]) => {
+    if (mode === 'EDIT') {
+      editReceipt(receipt, userUploadedImages);
+      setMode('VIEW');
+    }
+    if (mode === 'CREATE') {
+      createReceipt(receipt, userUploadedImages);
+      history.push('/receipt');
+    }
+  };
+
   return (
     <>
       {(receipt || mode === 'CREATE' || (mode === 'VIEW' && isLoading)) && (
@@ -67,7 +79,13 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
           ]}
           refBody={refForSwipeBack}
         >
-          <ReceiptForm formId={formId} loadedReceipt={receipt as any} loadedImages={loadedImages} mode={mode} setMode={setMode} />
+          <ReceiptForm
+            formId={formId}
+            loadedReceipt={receipt as any}
+            selectedReceipt={selectedReceipt}
+            mode={mode}
+            uploadSubmittedForm={uploadSubmittedForm}
+          />
         </RoutedPage>
       )}
       {receipt && mode === 'VIEW' && (
