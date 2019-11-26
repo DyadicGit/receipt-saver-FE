@@ -6,7 +6,7 @@ import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsTo
 import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ImageState } from '../../../rxjs-as-redux/storeInstances';
+import { ImageState, SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
 import LazyImage from '../../../components/LazyImage';
 import { setGlobalLoading } from "../receiptActions";
 
@@ -27,41 +27,48 @@ const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
 };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> => of({ key: file.name, file, url: result, userUploaded: true });
 
-const stateFromReceipt = (receipt: Receipt) => ({
+const stateFromReceipt = (receipt: Receipt | undefined) => ({
+  id: (receipt && receipt.id) || '',
   itemName: (receipt && receipt.itemName) || '',
   shopName: (receipt && receipt.shopName) || '',
-  date: new Date(toNumber((receipt && receipt.buyDate) || (receipt && receipt.creationDate)) || Date()).toISOString().substr(0, 10),
+  date: new Date(receipt ? toNumber(receipt.buyDate || receipt.creationDate ) : Date()).toISOString().substr(0, 10),
   totalPrice: (receipt && receipt.totalPrice) || 0,
   warrantyPeriod: secondsToMonths(receipt && receipt.warrantyPeriod) || 0
 });
 type ReceiptFormProps = {
   formId: string;
-  loadedReceipt: Receipt;
-  loadedImages: ImageState[];
+  loadedReceipt: Receipt | undefined;
+  selectedReceipt: SelectedReceiptState | null;
   mode: Mode;
   uploadSubmittedForm: (receipt: Receipt, userUploadedImages: File[]) => void;
 };
 
 type ReceiptFormState = {
+  id: string;
   itemName: string;
   shopName: string;
   date: string;
   totalPrice: number;
   warrantyPeriod: number;
 };
-const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, uploadSubmittedForm }: ReceiptFormProps) => {
+const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
-  useEffect(() => setState(stateFromReceipt(loadedReceipt)), [loadedReceipt]);
+  const [images, setImages] = useState<ImageState[]>((selectedReceipt && mode !== 'CREATE') ? selectedReceipt.images : []);
+  useEffect(() => {
+      if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
+        setImages(selectedReceipt.images);
+        setState(stateFromReceipt(loadedReceipt));
+      }
+  }, [loadedReceipt, selectedReceipt]);
 
-  const [images, setImages] = useState<ImageState[]>(loadedImages);
-  useEffect(() => setImages(loadedImages), [loadedImages]);
+
 
   const handleSubmit = e => {
     e.preventDefault();
     // console.log([{ itemName }, { shopName }, { date }, { image }, { totalPrice }, { warrantyPeriod: monthsToSeconds(warrantyPeriod) }]);
 
-    const receipt: Receipt = {
-      ...loadedReceipt,
+    const receipt = {
+      ...(loadedReceipt || {}),
       shopName: state.shopName,
       itemName: state.itemName,
       images: images.filter(s => !s.userUploaded).map(s => s.key),
@@ -70,7 +77,7 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, uploadSubmitte
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
     const imageFiles = images.filter(s => s.userUploaded).map(s => s.file) as File[];
-    uploadSubmittedForm(receipt, imageFiles);
+    uploadSubmittedForm(receipt as any, imageFiles);
   };
 
   const handleImageInput = e => {
@@ -86,12 +93,12 @@ const ReceiptForm = ({ formId, loadedReceipt, loadedImages, mode, uploadSubmitte
         )
       ).subscribe(
         newImages => {
+          setImages((images) => [...images, ...newImages]);
           setGlobalLoading(false);
-          setImages([...images, ...newImages]);
         },
         error => {
-          setGlobalLoading(false);
           console.error(error);
+          setGlobalLoading(false);
         }
       );
     }

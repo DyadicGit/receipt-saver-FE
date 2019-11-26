@@ -55,7 +55,6 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   });
 
   const formId = (receipt && receipt.id) || 'create';
-  const loadedImages = selectedReceipt && mode !== 'CREATE' ? selectedReceipt.images : [];
 
   const uploadSubmittedForm = (receipt: Receipt, userUploadedImages: File[]) => {
     if (mode === 'EDIT') {
@@ -83,7 +82,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
           <ReceiptForm
             formId={formId}
             loadedReceipt={receipt as any}
-            loadedImages={loadedImages}
+            selectedReceipt={selectedReceipt}
             mode={mode}
             uploadSubmittedForm={uploadSubmittedForm}
           />
