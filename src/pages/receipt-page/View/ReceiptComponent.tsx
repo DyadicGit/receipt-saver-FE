@@ -3,7 +3,7 @@ import { Receipt, ResponsiveImageData, UploadedImages } from '../../../config/Do
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
-import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
+import { Carousel, Img, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
@@ -21,12 +21,12 @@ const ImageBox = ({ onRemove, base64, responsiveImageData, hideDeleteButton }: I
           X
         </XButton>
       )}
-      {!responsiveImageData && <img src={base64 || placeHolder} alt="user-uploaded" />}
+      {!responsiveImageData && <Img src={base64 || placeHolder} alt="user-uploaded" />}
       {!!responsiveImageData && (
-        <img
+        <Img
           srcSet={`${responsiveImageData.px320.url} 320w,
-             ${responsiveImageData.px600.url}.jpg 600w,
-             ${responsiveImageData.px900.url}.jpg 900w`}
+             ${responsiveImageData.px600.url} 600w,
+             ${responsiveImageData.px900.url} 900w`}
           sizes="(max-width: 320px) 280px,
             (max-width: 600px) 600px,
             900px"

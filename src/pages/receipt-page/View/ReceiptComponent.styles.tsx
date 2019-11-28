@@ -34,7 +34,9 @@ export const XButton = styled.button`
     background-color: red;
   }
 `;
-
+export const Img = styled.img`
+  height: 100%;
+`;
 type UploadButtonProps = { red?: boolean }
 export const UploadButton = styled.div`
   label {

@@ -53,7 +53,7 @@ export default (state: GlobalState, action) =>
       receipts: {
         ...state.receipts,
         byId: { ...state.receipts.byId, ...updateNormalizedReceipt(action) },
-        order: [action.payload.receipt && action.payload.receipt.id, ...state.receipts.order]
+        order: [action.payload.receipt.id, ...state.receipts.order]
       },
       selectedReceipt: updateSelectedReceipt(action)
     })

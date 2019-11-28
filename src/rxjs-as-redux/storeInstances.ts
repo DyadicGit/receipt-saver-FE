@@ -1,7 +1,7 @@
 import { createStore } from './RxStore';
 import React from 'react';
 import receiptReducer from '../pages/receipt-page/receiptReducer';
-import { NormalizedReceipts, ResponsiveImageData, ResponsiveImageDataList } from '../config/DomainTypes';
+import { NormalizedReceipts, ResponsiveImageDataList } from '../config/DomainTypes';
 import { getAllReceiptsApi } from '../config/endpoints';
 import { ajax } from 'rxjs/ajax';
 import { map } from 'rxjs/operators';
