@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Hammer from 'hammerjs';
-import { GlobalState, Receipt } from '../../../config/DomainTypes';
+import { GlobalState, Receipt, UploadedImages } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './ConfirmationModal';
@@ -56,7 +56,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
 
   const formId = (receipt && receipt.id) || 'create';
 
-  const uploadSubmittedForm = (receipt: Receipt, userUploadedImages: File[]) => {
+  const uploadSubmittedForm = (receipt: Receipt, userUploadedImages: UploadedImages[]) => {
     if (mode === 'EDIT') {
       editReceipt(receipt, userUploadedImages);
       setMode('VIEW');
