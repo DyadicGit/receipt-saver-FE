@@ -20,12 +20,13 @@ export const Page = styled.div`
   background-color: #330909a1;
 `;
 
+const navBarHeight = '10vh';
 export const PageContainer = styled.div`
   font-size: calc(10px + 2vmin);
   color: white;
   display: grid;
   grid-template-columns: 5vw 90vw 5vw;
-  grid-template-rows: 100px calc(100vh - 100px);
+  grid-template-rows: ${navBarHeight} 90vh;
   grid-template-areas:
     '. navbar .'
     '. pageBody .';
@@ -34,7 +35,7 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
-  height: 100px;
+  max-height: ${navBarHeight};
   width: 100%;
   grid-area: navbar;
   display: grid;
