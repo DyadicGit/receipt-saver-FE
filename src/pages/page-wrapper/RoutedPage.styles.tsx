@@ -25,7 +25,7 @@ export const PageContainer = styled.div`
   color: white;
   display: grid;
   grid-template-columns: 5vw 90vw 5vw;
-  grid-template-rows: 70px calc(100vh - 70px);
+  grid-template-rows: 100px calc(100vh - 100px);
   grid-template-areas:
     '. navbar .'
     '. pageBody .';
@@ -34,7 +34,7 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
-  height: 70px;
+  height: 100px;
   width: 100%;
   grid-area: navbar;
   display: grid;
