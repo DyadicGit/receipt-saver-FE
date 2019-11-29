@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { Receipt } from '../../../config/DomainTypes';
+import { Receipt, ResponsiveImageData, UploadedImages } from '../../../config/DomainTypes';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
-import { Carousel, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
+import { Carousel, Img, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ImageState, SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
-import LazyImage from '../../../components/LazyImage';
-import { setGlobalLoading } from "../receiptActions";
+import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
+import { setGlobalLoading } from '../receiptActions';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
+const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
+  of({ uniqueId: file.name, base64: result, userUploaded: true, responsiveImageData: undefined, file } as ImageState);
+const toImageStateFromImageData = (i: ResponsiveImageData): ImageState => ({ responsiveImageData: i, uniqueId: i.orig.key, userUploaded: false });
 
-type ImageBoxProps = { onRemove: () => void; url: string; hideDeleteButton: boolean };
-const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
+const stateFromReceipt = (receipt: Receipt | undefined) => ({
+  id: (receipt && receipt.id) || '',
+  itemName: (receipt && receipt.itemName) || '',
+  shopName: (receipt && receipt.shopName) || '',
+  date: new Date(receipt ? toNumber(receipt.buyDate || receipt.creationDate) : Date()).toISOString().substr(0, 10),
+  totalPrice: (receipt && receipt.totalPrice) || 0,
+  warrantyPeriod: secondsToMonths(receipt && receipt.warrantyPeriod) || 0
+});
+
+const placeHolder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=';
+type ImageBoxProps = { onRemove: () => void; base64: string | undefined; responsiveImageData: ResponsiveImageData | undefined; hideDeleteButton: boolean };
+const ImageBox = ({ onRemove, base64, responsiveImageData, hideDeleteButton }: ImageBoxProps) => {
   return (
     <ImgContainer>
       {!hideDeleteButton && (
@@ -21,28 +33,27 @@ const ImageBox = ({ onRemove, url, hideDeleteButton }: ImageBoxProps) => {
           X
         </XButton>
       )}
-      <LazyImage src={url} alt="image" />
+      {!responsiveImageData && <Img src={base64 || placeHolder} alt="user-uploaded" />}
+      {!!responsiveImageData && (
+        <picture>
+          <source media="(max-width: 600px)" srcSet={responsiveImageData.px320.url}/>
+          <source media="(max-width: 900px)" srcSet={responsiveImageData.px600.url}/>
+          <source media="(max-width: 1200px)" srcSet={responsiveImageData.px900.url}/>
+          <source media="(min-width: 1200px)" srcSet={responsiveImageData.orig.url}/>
+          <Img src={responsiveImageData.orig.url} alt={responsiveImageData.orig.key}/>
+        </picture>
+      )}
     </ImgContainer>
   );
 };
-const toImageState = ({ file, result }: ReadResult): Observable<ImageState> => of({ key: file.name, file, url: result, userUploaded: true });
 
-const stateFromReceipt = (receipt: Receipt | undefined) => ({
-  id: (receipt && receipt.id) || '',
-  itemName: (receipt && receipt.itemName) || '',
-  shopName: (receipt && receipt.shopName) || '',
-  date: new Date(receipt ? toNumber(receipt.buyDate || receipt.creationDate ) : Date()).toISOString().substr(0, 10),
-  totalPrice: (receipt && receipt.totalPrice) || 0,
-  warrantyPeriod: secondsToMonths(receipt && receipt.warrantyPeriod) || 0
-});
 type ReceiptFormProps = {
   formId: string;
   loadedReceipt: Receipt | undefined;
-  selectedReceipt: SelectedReceiptState | null;
+  selectedReceipt: SelectedReceiptState;
   mode: Mode;
-  uploadSubmittedForm: (receipt: Receipt, userUploadedImages: File[]) => void;
+  uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImages[]) => void;
 };
-
 type ReceiptFormState = {
   id: string;
   itemName: string;
@@ -51,17 +62,22 @@ type ReceiptFormState = {
   totalPrice: number;
   warrantyPeriod: number;
 };
+type ImageState = {
+  uniqueId: string;
+  responsiveImageData?: ResponsiveImageData;
+  userUploaded: boolean;
+  base64?: string;
+  file?: File;
+};
 const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
-  const [images, setImages] = useState<ImageState[]>((selectedReceipt && mode !== 'CREATE') ? selectedReceipt.images : []);
+  const [images, setImages] = useState<ImageState[]>(selectedReceipt && mode !== 'CREATE' ? selectedReceipt.images.map(toImageStateFromImageData) : []);
   useEffect(() => {
-      if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
-        setImages(selectedReceipt.images);
-        setState(stateFromReceipt(loadedReceipt));
-      }
+    if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
+      setImages(selectedReceipt.images.map(toImageStateFromImageData));
+      setState(stateFromReceipt(loadedReceipt));
+    }
   }, [loadedReceipt, selectedReceipt]);
-
-
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -71,29 +87,35 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
       ...(loadedReceipt || {}),
       shopName: state.shopName,
       itemName: state.itemName,
-      images: images.filter(s => !s.userUploaded).map(s => s.key),
+      images: images.filter(s => !s.userUploaded).map(s => s.responsiveImageData),
       buyDate: Date.parse(`${state.date} ${new Date().getHours()}:${new Date().getMinutes()}`),
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
-    const imageFiles = images.filter(s => s.userUploaded).map(s => s.file) as File[];
-    uploadSubmittedForm(receipt as any, imageFiles);
+    const uploadedImages: UploadedImages[] = images
+      .filter(i => i.userUploaded)
+      .map(({ base64, file }: any) => ({
+        base64: base64,
+        contentType: file.type
+      }));
+    uploadSubmittedForm(receipt as any, uploadedImages);
   };
 
   const handleImageInput = e => {
     const files: File[] = Array.from(e.target.files);
     if (files.length) {
       setGlobalLoading(true);
-      forkJoin(
+      const compressReadMapToState$ = forkJoin(
         files.map(file =>
           compressImage(file).pipe(
             switchMap(readFileAsBase64),
             switchMap(toImageState)
           )
         )
-      ).subscribe(
+      );
+      compressReadMapToState$.subscribe(
         newImages => {
-          setImages((images) => [...images, ...newImages]);
+          setImages(images => [...images, ...newImages]);
           setGlobalLoading(false);
         },
         error => {
@@ -104,8 +126,8 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
     }
   };
 
-  const handleImageDeletion = key => {
-    setImages(images.filter(img => img.key !== key));
+  const handleImageDeletion = uniqueId => {
+    setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
 
   return (
@@ -113,7 +135,13 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
       {!!images && !!images.length && (
         <Carousel>
           {images.map((img, index) => (
-            <ImageBox key={index} onRemove={() => handleImageDeletion(img.key)} url={img.url} hideDeleteButton={isDisabled[mode]} />
+            <ImageBox
+              key={index}
+              onRemove={() => handleImageDeletion(img.uniqueId)}
+              responsiveImageData={img.responsiveImageData || undefined}
+              base64={img.base64 || undefined}
+              hideDeleteButton={isDisabled[mode]}
+            />
           ))}
         </Carousel>
       )}

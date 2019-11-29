@@ -25,7 +25,7 @@ export const PageContainer = styled.div`
   color: white;
   display: grid;
   grid-template-columns: 5vw 90vw 5vw;
-  grid-template-rows: 100px calc(100vh - 100px);
+  grid-template-rows: 70px calc(100vh - 70px);
   grid-template-areas:
     '. navbar .'
     '. pageBody .';
@@ -34,6 +34,8 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
+  height: 70px;
+  width: 100%;
   grid-area: navbar;
   display: grid;
   grid-template-columns: 25px auto 1fr 15px;
@@ -44,7 +46,6 @@ export const Nav = styled.div`
   background-color: black;
   z-index: 1;
   background-size: 16px 16px;
-  width: 100%;
 `;
 
 export const BackButton = styled.div`
