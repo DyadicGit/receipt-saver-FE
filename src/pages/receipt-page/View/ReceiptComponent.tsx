@@ -10,8 +10,21 @@ import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
 import { setGlobalLoading } from '../receiptActions';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
-const placeHolder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=';
 
+const compressReadMapToState$ = (files: File[]) =>
+  forkJoin(
+    files.map(file =>
+      compressImage(file).pipe(
+        switchMap(readFileAsBase64),
+        switchMap(toImageState)
+      )
+    )
+  );
+const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
+  of({ uniqueId: file.name, base64: result, userUploaded: true, responsiveImageData: undefined, file } as ImageState);
+const toImageStateFromImageData = (i: ResponsiveImageData): ImageState => ({ responsiveImageData: i, uniqueId: i.orig.key, userUploaded: false });
+
+const placeHolder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=';
 type ImageBoxProps = { onRemove: () => void; base64: string | undefined; responsiveImageData: ResponsiveImageData | undefined; hideDeleteButton: boolean };
 const ImageBox = ({ onRemove, base64, responsiveImageData, hideDeleteButton }: ImageBoxProps) => {
   return (
@@ -37,9 +50,6 @@ const ImageBox = ({ onRemove, base64, responsiveImageData, hideDeleteButton }: I
     </ImgContainer>
   );
 };
-const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
-  of({ uniqueId: file.name, base64: result, userUploaded: true, responsiveImageData: undefined, file } as ImageState);
-const toImageStateFromImageData = (i: ResponsiveImageData): ImageState => ({ responsiveImageData: i, uniqueId: i.orig.key, userUploaded: false });
 
 const stateFromReceipt = (receipt: Receipt | undefined) => ({
   id: (receipt && receipt.id) || '',
@@ -49,6 +59,7 @@ const stateFromReceipt = (receipt: Receipt | undefined) => ({
   totalPrice: (receipt && receipt.totalPrice) || 0,
   warrantyPeriod: secondsToMonths(receipt && receipt.warrantyPeriod) || 0
 });
+
 type ReceiptFormProps = {
   formId: string;
   loadedReceipt: Receipt | undefined;
@@ -56,7 +67,6 @@ type ReceiptFormProps = {
   mode: Mode;
   uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImages[]) => void;
 };
-
 type ReceiptFormState = {
   id: string;
   itemName: string;
@@ -65,7 +75,6 @@ type ReceiptFormState = {
   totalPrice: number;
   warrantyPeriod: number;
 };
-
 type ImageState = {
   uniqueId: string;
   responsiveImageData?: ResponsiveImageData;
@@ -109,14 +118,8 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
     const files: File[] = Array.from(e.target.files);
     if (files.length) {
       setGlobalLoading(true);
-      forkJoin(
-        files.map(file =>
-          compressImage(file).pipe(
-            switchMap(readFileAsBase64),
-            switchMap(toImageState)
-          )
-        )
-      ).subscribe(
+      const imageStates$: Observable<ImageState[]> = compressReadMapToState$(files);
+      imageStates$.subscribe(
         newImages => {
           setImages(images => [...images, ...newImages]);
           setGlobalLoading(false);

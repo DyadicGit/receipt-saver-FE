@@ -13,7 +13,6 @@ export interface Receipt {
   userID: string;
 }
 
-export type ImageKey = { orig: string; px320: string; px600: string; px900: string };
 export type ReceiptWithImages = { receipt: Receipt; images: ResponsiveImageDataList };
 export type ResponsiveImageDataList = ResponsiveImageData[];
 export type ResponsiveImageData = { orig: ImageData; px320: ImageData; px600: ImageData; px900: ImageData };
@@ -33,4 +32,4 @@ export interface NormalizedReceipts {
   order: string[];
 }
 
-export interface GlobalState extends InitialState {}
+export interface GlobalState extends Readonly<InitialState> {}
