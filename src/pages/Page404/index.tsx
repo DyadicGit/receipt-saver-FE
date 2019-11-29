@@ -28,7 +28,7 @@ const Container404 = styled.div`
 
 export default ({ code }) => (
   <>
-    <WideLink href="/receipt">
+    <WideLink href="/receipt" aria-label="go to main page">
       <DoubleArrow />
     </WideLink>
     <Container404>
