@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import img from './background-blue.jpg';
+import { colors } from '../../config/styleConstants';
 
 export const Background = styled.div`
   position: absolute;
@@ -17,16 +18,23 @@ export const Page = styled.div`
   position: fixed;
   top: 0;
   -webkit-overflow-scrolling: touch;
-  background-color: #330909a1;
+  background-color: ${colors.pageWrapper.backgroundEclipse};
 `;
 
-const navBarHeight = '10vh';
+const navBarHeightPortrait = '10vh';
+const navBarHeightLandscape = '20vh';
 export const PageContainer = styled.div`
   font-size: calc(10px + 2vmin);
   color: white;
   display: grid;
   grid-template-columns: 5vw 90vw 5vw;
-  grid-template-rows: ${navBarHeight} 90vh;
+  @media screen and (orientation: portrait) {
+    grid-template-rows: ${navBarHeightPortrait} 90vh;
+  }
+  @media screen and (orientation: landscape) {
+    grid-template-rows: ${navBarHeightLandscape} 90vh;
+  }
+
   grid-template-areas:
     '. navbar .'
     '. pageBody .';
@@ -35,7 +43,12 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
-  max-height: ${navBarHeight};
+  @media screen and (orientation: portrait) {
+    max-height: ${navBarHeightPortrait};
+  }
+  @media screen and (orientation: landscape) {
+    max-height: ${navBarHeightLandscape};
+  }
   width: 100%;
   grid-area: navbar;
   display: grid;

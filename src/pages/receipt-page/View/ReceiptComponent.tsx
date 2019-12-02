@@ -3,11 +3,12 @@ import { Receipt, ResponsiveImageData, UploadedImages } from '../../../config/Do
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
-import { Carousel, Img, ImgContainer, UploadButton, XButton } from './ReceiptComponent.styles';
+import { Carousel, UploadButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
 import { setGlobalLoading } from '../receiptActions';
+import Thumbnail from './components/ThumbnailComponent';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
@@ -23,36 +24,13 @@ const stateFromReceipt = (receipt: Receipt | undefined) => ({
   warrantyPeriod: secondsToMonths(receipt && receipt.warrantyPeriod) || 0
 });
 
-const placeHolder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=';
-type ImageBoxProps = { onRemove: () => void; base64: string | undefined; responsiveImageData: ResponsiveImageData | undefined; hideDeleteButton: boolean };
-const ImageBox = ({ onRemove, base64, responsiveImageData, hideDeleteButton }: ImageBoxProps) => {
-  return (
-    <ImgContainer>
-      {!hideDeleteButton && (
-        <XButton type="button" onClick={onRemove}>
-          X
-        </XButton>
-      )}
-      {!responsiveImageData && <Img src={base64 || placeHolder} alt="user-uploaded" />}
-      {!!responsiveImageData && (
-        <picture>
-          <source media="(max-width: 600px)" srcSet={responsiveImageData.px320.url}/>
-          <source media="(max-width: 900px)" srcSet={responsiveImageData.px600.url}/>
-          <source media="(max-width: 1200px)" srcSet={responsiveImageData.px900.url}/>
-          <source media="(min-width: 1200px)" srcSet={responsiveImageData.orig.url}/>
-          <Img src={responsiveImageData.orig.url} alt={responsiveImageData.orig.key}/>
-        </picture>
-      )}
-    </ImgContainer>
-  );
-};
-
 type ReceiptFormProps = {
   formId: string;
   loadedReceipt: Receipt | undefined;
   selectedReceipt: SelectedReceiptState;
   mode: Mode;
   uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImages[]) => void;
+  callFullScreenPreview: (index: number) => void
 };
 type ReceiptFormState = {
   id: string;
@@ -69,9 +47,9 @@ type ImageState = {
   base64?: string;
   file?: File;
 };
-const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
+const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm, callFullScreenPreview }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
-  const [images, setImages] = useState<ImageState[]>(selectedReceipt && mode !== 'CREATE' ? selectedReceipt.images.map(toImageStateFromImageData) : []);
+  const [images, setImages] = useState<ImageState[]>([]);
   useEffect(() => {
     if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
       setImages(selectedReceipt.images.map(toImageStateFromImageData));
@@ -129,15 +107,15 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
   const handleImageDeletion = uniqueId => {
     setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
-
   return (
     <form id={formId} onSubmit={handleSubmit} autoComplete="off">
       {!!images && !!images.length && (
         <Carousel>
           {images.map((img, index) => (
-            <ImageBox
+            <Thumbnail
               key={index}
               onRemove={() => handleImageDeletion(img.uniqueId)}
+              onPreviewClick={() => callFullScreenPreview(index)}
               responsiveImageData={img.responsiveImageData || undefined}
               base64={img.base64 || undefined}
               hideDeleteButton={isDisabled[mode]}
