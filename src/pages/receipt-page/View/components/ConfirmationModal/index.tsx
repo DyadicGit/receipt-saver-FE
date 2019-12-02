@@ -1,9 +1,9 @@
 import React from 'react';
 import { CSSTransition } from 'react-transition-group';
 import './modalTransition.css';
-import ButtonBlackWhite from '../../../../components/ButtonBlackWhite';
+import ButtonBlackWhite from '../../../../../components/ButtonBlackWhite';
 import styled from 'styled-components';
-import FullPageDimmer from '../../../../components/FullPageDimmer';
+import FullPageDimmer from '../../../../../components/FullPageDimmer';
 
 const GlowShadowBox = styled.div`
   z-index: 3;

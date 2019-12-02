@@ -4,11 +4,12 @@ import Hammer from 'hammerjs';
 import { GlobalState, Receipt, UploadedImages } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
-import DeletionConfirmModal from './ConfirmationModal';
+import DeletionConfirmModal from './components/ConfirmationModal';
 import { createReceipt, deleteReceipt, dispatchSeriousError, editReceipt, selectReceiptAndFetchItsImages } from '../receiptActions';
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
+import ImageFullScreenPreview from "./components/FullScreenPreview";
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 let swipeListener$ = new Subject();
@@ -28,6 +29,8 @@ const titleByMode = (mode: Mode): string =>
 const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, initMode }: { state: GlobalState; initMode?: Mode }) => {
   const [mode, setMode]: [Mode, any] = useState(initMode || 'VIEW');
   const [showConf, setShowConf] = useState(false);
+  const [showFullScreen, setShowFullScreen] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
   const fromParams = useParams(),
     fromParamsId = fromParams.id;
   const [receipt] = useState<Receipt | undefined>(mode !== 'CREATE' ? receipts && receipts.byId[fromParamsId] : undefined);
@@ -66,6 +69,10 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
       history.push('/receipt');
     }
   };
+  const showFullScreenAndScrollToImage = (index) => {
+    setShowFullScreen(true);
+    setImageIndex(index)
+  };
 
   return (
     <>
@@ -84,12 +91,16 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
             loadedReceipt={receipt as any}
             selectedReceipt={selectedReceipt}
             mode={mode}
+            callFullScreenPreview={showFullScreenAndScrollToImage}
             uploadSubmittedForm={uploadSubmittedForm}
           />
         </RoutedPage>
       )}
       {receipt && mode === 'VIEW' && (
         <DeletionConfirmModal show={showConf} onConfirm={() => handleConfirmedDelete(receipt.id)} onDismiss={() => setShowConf(false)} />
+      )}
+      {receipt && mode === 'VIEW' && selectedReceipt && selectedReceipt.images.length && (
+        <ImageFullScreenPreview images={selectedReceipt.images} onExit={() => setShowFullScreen(false)} show={showFullScreen} imageIndex={imageIndex}/>
       )}
     </>
   );

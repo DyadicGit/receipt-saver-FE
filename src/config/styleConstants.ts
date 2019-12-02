@@ -10,7 +10,7 @@ export const colors = {
     labelFocus:'#26a69a',
   },
   pageWrapper: {
-    pageBackground:'#330909a1',
+    backgroundEclipse:'#33090961',
   },
   list: {
     lineBorder:'#d3d63854',
