@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { colors } from "../config/styleConstants";
 
 const LinkBlackWhite = styled(Link)`
   display: inline-block;
@@ -11,7 +12,7 @@ const LinkBlackWhite = styled(Link)`
   text-decoration: none;
   font-weight: bold;
   color: white;
-  background-color: ${(props: { red?: boolean }) => (props.red ? 'rgba(255, 7, 3, 0.57)' : 'inherit')};
+  background-color: ${(props: { red?: boolean }) => (props.red ? colors.buttonError : 'inherit')};
   text-align: center;
   transition: all 0.2s;
   :hover {

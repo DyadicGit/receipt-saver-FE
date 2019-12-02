@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { colors } from "../../../config/styleConstants";
 
 export const Carousel = styled.div`
   height: 30vh;
@@ -49,7 +50,7 @@ export const UploadButton = styled.div`
     text-decoration: none;
     font-weight: bold;
     color: white;
-    background-color: ${(props: UploadButtonProps) => (props.red ? 'rgba(255, 7, 3, 0.57)' : 'inherit')};
+    background-color: ${(props: UploadButtonProps) => (props.red ? colors.buttonError : 'inherit')};
     text-align: center;
     transition: all 0.2s;
     :hover {

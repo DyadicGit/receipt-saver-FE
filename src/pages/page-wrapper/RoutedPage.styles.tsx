@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import img from './background-blue.jpg';
+import { colors } from "../../config/styleConstants";
 
 export const Background = styled.div`
   position: absolute;
@@ -17,7 +18,7 @@ export const Page = styled.div`
   position: fixed;
   top: 0;
   -webkit-overflow-scrolling: touch;
-  background-color: #330909a1;
+  background-color: ${colors.pageWrapper.pageBackground};
 `;
 
 const navBarHeight = '10vh';
