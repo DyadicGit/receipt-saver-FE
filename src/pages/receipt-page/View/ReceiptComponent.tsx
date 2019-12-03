@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Receipt, ResponsiveImageData, UploadedImages } from '../../../config/DomainTypes';
+import { Receipt, ResponsiveImageData, UploadedImagesList } from '../../../config/DomainTypes';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
-import { Carousel, UploadButton } from './ReceiptComponent.styles';
+import { UploadButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
 import { setGlobalLoading } from '../receiptActions';
-import Thumbnail from './components/ThumbnailComponent';
+import ThumbnailPreview from './components/ImagePreview/ThumbnailComponent';
+import ImageFullScreenPreview from './components/ImagePreview/FullScreenComponent';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
@@ -29,8 +30,7 @@ type ReceiptFormProps = {
   loadedReceipt: Receipt | undefined;
   selectedReceipt: SelectedReceiptState;
   mode: Mode;
-  uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImages[]) => void;
-  callFullScreenPreview: (index: number) => void
+  uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImagesList) => void;
 };
 type ReceiptFormState = {
   id: string;
@@ -47,9 +47,13 @@ type ImageState = {
   base64?: string;
   file?: File;
 };
-const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm, callFullScreenPreview }: ReceiptFormProps) => {
+export type ImageStateList = ImageState[];
+
+const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
-  const [images, setImages] = useState<ImageState[]>([]);
+  const [images, setImages] = useState<ImageStateList>([]);
+  const [showFullScreen, setShowFullScreen] = useState<boolean>(false);
+  const [imageIndex, setImageIndex] = useState<number>(0);
   useEffect(() => {
     if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
       setImages(selectedReceipt.images.map(toImageStateFromImageData));
@@ -70,7 +74,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
       totalPrice: state.totalPrice,
       warrantyPeriod: monthsToSeconds(state.warrantyPeriod)
     };
-    const uploadedImages: UploadedImages[] = images
+    const uploadedImages: UploadedImagesList = images
       .filter(i => i.userUploaded)
       .map(({ base64, file }: any) => ({
         base64: base64,
@@ -103,26 +107,27 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
       );
     }
   };
-
+  const showFullScreenAndScrollToImage = index => {
+    setShowFullScreen(true);
+    setImageIndex(index);
+  };
   const handleImageDeletion = uniqueId => {
     setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
   return (
     <form id={formId} onSubmit={handleSubmit} autoComplete="off">
-      {!!images && !!images.length && (
-        <Carousel>
-          {images.map((img, index) => (
-            <Thumbnail
-              key={index}
-              onRemove={() => handleImageDeletion(img.uniqueId)}
-              onPreviewClick={() => callFullScreenPreview(index)}
-              responsiveImageData={img.responsiveImageData || undefined}
-              base64={img.base64 || undefined}
-              hideDeleteButton={isDisabled[mode]}
-            />
-          ))}
-        </Carousel>
+      {!showFullScreen && !!images && !!images.length && (
+        <ThumbnailPreview
+          onRemoveClick={handleImageDeletion}
+          onThumbnailClick={showFullScreenAndScrollToImage}
+          images={images}
+          hideDeleteButton={isDisabled[mode]}
+        />
       )}
+      {showFullScreen && selectedReceipt && selectedReceipt.images && (
+        <ImageFullScreenPreview images={selectedReceipt.images} onExit={() => setShowFullScreen(false)} imageIndex={imageIndex} />
+      )}
+
       {mode !== 'VIEW' && (
         <UploadButton>
           <label htmlFor="imageUpload">select images</label>

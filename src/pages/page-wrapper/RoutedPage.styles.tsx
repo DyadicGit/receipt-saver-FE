@@ -7,13 +7,11 @@ export const Background = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   background-image: url(${img});
 `;
 export const Page = styled.div`
-  height: 100vh;
-  width: 100vw;
   overflow-y: auto;
   position: fixed;
   top: 0;
@@ -21,18 +19,19 @@ export const Page = styled.div`
   background-color: ${colors.pageWrapper.backgroundEclipse};
 `;
 
-const navBarHeightPortrait = '10vh';
+const navBarHeight = '10vh';
 const navBarHeightLandscape = '20vh';
+export const bodyHeight = '90vh';
+export const bodyHeightLandscape = '80vh';
+export const bodyWidth = '90vw';
 export const PageContainer = styled.div`
   font-size: calc(10px + 2vmin);
   color: white;
   display: grid;
-  grid-template-columns: 5vw 90vw 5vw;
-  @media screen and (orientation: portrait) {
-    grid-template-rows: ${navBarHeightPortrait} 90vh;
-  }
+  grid-template-columns: 5vw ${bodyWidth} 5vw;
+  grid-template-rows: ${navBarHeight} ${bodyHeight};
   @media screen and (orientation: landscape) {
-    grid-template-rows: ${navBarHeightLandscape} 90vh;
+    grid-template-rows: ${navBarHeightLandscape} ${bodyHeightLandscape};
   }
 
   grid-template-areas:
@@ -43,9 +42,7 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
-  @media screen and (orientation: portrait) {
-    max-height: ${navBarHeightPortrait};
-  }
+  max-height: ${navBarHeight};
   @media screen and (orientation: landscape) {
     max-height: ${navBarHeightLandscape};
   }

@@ -1,15 +1,6 @@
 import styled from 'styled-components';
 import { colors } from "../../../config/styleConstants";
 
-export const Carousel = styled.div`
-  height: 30vh;
-  display: flex;
-  margin-top: 10px;
-  padding: 10px 0 10px 0;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-`;
-
 type UploadButtonProps = { red?: boolean }
 export const UploadButton = styled.div`
   label {
