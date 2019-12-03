@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Carousel, CircleSpinner, Img, ImgContainer, imgContainerSidePadding } from './ImagePreview.styles';
 import { ImageStateList } from '../../ReceiptComponent';
 
-export const SmallCarousel = styled(Carousel)`
+const SmallCarousel = styled(Carousel)`
   height: 30vh;
 `;
 

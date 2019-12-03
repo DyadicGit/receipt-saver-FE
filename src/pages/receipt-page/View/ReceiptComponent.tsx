@@ -8,8 +8,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
 import { setGlobalLoading } from '../receiptActions';
-import ThumbnailPreview from './components/ImagePreview/ThumbnailComponent';
-import ImageFullScreenPreview from './components/ImagePreview/FullScreenComponent';
+import {ThumbnailPreview, FullScreenPreview } from './components/ImagePreview';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
@@ -125,7 +124,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
         />
       )}
       {showFullScreen && selectedReceipt && selectedReceipt.images && (
-        <ImageFullScreenPreview images={selectedReceipt.images} onExit={() => setShowFullScreen(false)} imageIndex={imageIndex} />
+        <FullScreenPreview images={selectedReceipt.images} onExit={() => setShowFullScreen(false)} imageIndex={imageIndex} />
       )}
 
       {mode !== 'VIEW' && (
