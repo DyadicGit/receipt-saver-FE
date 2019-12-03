@@ -21,3 +21,6 @@ export const colors = {
   },
   buttonError:'rgba(255, 7, 3, 0.57)',
 };
+export const unifiedStyles = {
+  pageWrapper: ['margin-bottom: 10vh;']
+};

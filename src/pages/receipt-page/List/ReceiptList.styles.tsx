@@ -1,10 +1,11 @@
 import styled from 'styled-components';
-import { colors } from "../../../config/styleConstants";
+import { colors, unifiedStyles } from "../../../config/styleConstants";
 
 export const List = styled.ul`
   list-style-type: none;
   word-break: break-word;
   padding: 0;
+  ${unifiedStyles.pageWrapper};
 `;
 
 export const Line = styled.li`

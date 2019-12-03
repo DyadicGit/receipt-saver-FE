@@ -1,5 +1,9 @@
 import styled from 'styled-components';
-import { colors } from "../../../config/styleConstants";
+import { colors, unifiedStyles } from "../../../config/styleConstants";
+
+export const Form = styled.form`
+  ${unifiedStyles.pageWrapper};
+`;
 
 type UploadButtonProps = { red?: boolean }
 export const UploadButton = styled.div`

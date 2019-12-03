@@ -3,7 +3,7 @@ import { Receipt, ResponsiveImageData, UploadedImagesList } from '../../../confi
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
-import { UploadButton } from './ReceiptComponent.styles';
+import { Form, UploadButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
@@ -114,7 +114,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
     setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
   return (
-    <form id={formId} onSubmit={handleSubmit} autoComplete="off">
+    <Form id={formId} onSubmit={handleSubmit} autoComplete="off">
       {!showFullScreen && !!images && !!images.length && (
         <ThumbnailPreview
           onRemoveClick={handleImageDeletion}
@@ -144,7 +144,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
         type="number"
         disabled={isDisabled[mode]}
       />
-    </form>
+    </Form>
   );
 };
 
