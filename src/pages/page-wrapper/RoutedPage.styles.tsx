@@ -21,18 +21,19 @@ export const Page = styled.div`
   background-color: ${colors.pageWrapper.backgroundEclipse};
 `;
 
-const navBarHeightPortrait = '10vh';
+const navBarHeight = '10vh';
 const navBarHeightLandscape = '20vh';
+export const bodyHeight = '90vh';
+export const bodyHeightLandscape = '80vh';
+export const bodyWidth = '90vw';
 export const PageContainer = styled.div`
   font-size: calc(10px + 2vmin);
   color: white;
   display: grid;
-  grid-template-columns: 5vw 90vw 5vw;
-  @media screen and (orientation: portrait) {
-    grid-template-rows: ${navBarHeightPortrait} 90vh;
-  }
+  grid-template-columns: 5vw ${bodyWidth} 5vw;
+  grid-template-rows: ${navBarHeight} ${bodyHeight};
   @media screen and (orientation: landscape) {
-    grid-template-rows: ${navBarHeightLandscape} 90vh;
+    grid-template-rows: ${navBarHeightLandscape} ${bodyHeightLandscape};
   }
 
   grid-template-areas:
@@ -43,9 +44,7 @@ export const PageBody = styled.div`
   grid-area: pageBody;
 `;
 export const Nav = styled.div`
-  @media screen and (orientation: portrait) {
-    max-height: ${navBarHeightPortrait};
-  }
+  max-height: ${navBarHeight};
   @media screen and (orientation: landscape) {
     max-height: ${navBarHeightLandscape};
   }

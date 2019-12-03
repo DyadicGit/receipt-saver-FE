@@ -19,12 +19,13 @@ export type ResponsiveImageData = { orig: ImageData; px320: ImageData; px600: Im
 export type ImageData = { url: string; key: string };
 export interface RequestWithReceiptAndFiles {
   receipt: Receipt;
-  uploadedImages: UploadedImages[];
+  uploadedImages: UploadedImagesList;
 }
 export interface UploadedImages {
   base64: string;
   contentType: string;
 }
+export type UploadedImagesList = UploadedImages[];
 
 export type NormalizedReceipt = { [id: string]: Receipt };
 export interface NormalizedReceipts {
