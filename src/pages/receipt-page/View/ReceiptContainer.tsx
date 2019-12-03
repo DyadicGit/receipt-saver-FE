@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Hammer from 'hammerjs';
-import { GlobalState, Receipt, UploadedImages, UploadedImagesList } from '../../../config/DomainTypes';
+import { GlobalState, Receipt, UploadedImagesList } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
 import ReceiptForm from './ReceiptComponent';
 import DeletionConfirmModal from './components/ConfirmationModal';
@@ -36,7 +36,7 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
   const [showConf, setShowConf] = useState(false);
   const fromParams = useParams(),
     fromParamsId = fromParams.id;
-  const [receipt] = useState<Receipt | undefined>(mode !== 'CREATE' ? receipts && receipts.byId[fromParamsId] : undefined);
+  const receipt: Receipt | undefined = mode !== 'CREATE' ? receipts && receipts.byId[fromParamsId] : undefined;
   useEffect(() => {
     if (fromParamsId && receipt) {
       selectReceiptAndFetchItsImages(fromParamsId);

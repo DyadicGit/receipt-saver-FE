@@ -7,13 +7,11 @@ export const Background = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   background-image: url(${img});
 `;
 export const Page = styled.div`
-  height: 100vh;
-  width: 100vw;
   overflow-y: auto;
   position: fixed;
   top: 0;

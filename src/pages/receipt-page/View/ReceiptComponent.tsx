@@ -52,7 +52,7 @@ export type ImageStateList = ImageState[];
 const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
   const [images, setImages] = useState<ImageStateList>([]);
-  const [showFullScreen, setShowFullScreen] = useState<boolean>(true);
+  const [showFullScreen, setShowFullScreen] = useState<boolean>(false);
   const [imageIndex, setImageIndex] = useState<number>(0);
   useEffect(() => {
     if (selectedReceipt && loadedReceipt && loadedReceipt.id === selectedReceipt.id) {
