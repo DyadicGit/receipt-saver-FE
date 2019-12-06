@@ -56,5 +56,10 @@ export default (state: GlobalState, action) =>
         order: [action.payload.receipt.id, ...state.receipts.order]
       },
       selectedReceipt: updateSelectedReceipt(action)
+    }),
+    DETECTED: () => ({
+      ...state,
+      isLoading: false,
+      detection: action.payload
     })
   }[action.type]() || state);

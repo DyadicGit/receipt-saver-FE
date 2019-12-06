@@ -1,16 +1,19 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ResponsiveImageDataList } from '../../../../../config/DomainTypes';
-import { Carousel, CircleSpinner, Img, ImgContainer, imgContainerSidePadding } from "./ImagePreview.styles";
-import { colors } from "../../../../../config/styleConstants";
-import { bodyHeight, bodyHeightLandscape, bodyWidth } from "../../../../page-wrapper/RoutedPage.styles";
+import { Carousel, CircleSpinner, Img, ImgContainerWrapper, imgContainerSidePadding } from './ImagePreview.styles';
+import { colors } from '../../../../../config/styleConstants';
+import { bodyHeight, bodyHeightLandscape, bodyWidth } from '../../../../page-wrapper/RoutedPage.styles';
 
 export const BigCarousel = styled(Carousel)`
   background-color: ${colors.pageWrapper.backgroundEclipse};
   align-items: center;
-  max-height: ${bodyHeight};
+`;
+
+const BigContainer = styled(ImgContainerWrapper)`
+  grid-template-rows: ${bodyHeight};
   @media screen and (orientation: landscape) {
-    max-height: ${bodyHeightLandscape};
+    grid-template-rows: ${bodyHeightLandscape};
   }
 `;
 
@@ -30,7 +33,7 @@ export default ({ images, onExit: handleImageClick, imageIndex }: Props) => {
     if (imgRefs[imageIndex] && imgRefs[imageIndex].current) {
       setTimeout(() => {
         if (imgRefs[imageIndex] && imgRefs[imageIndex].current) {
-          imgRefs[imageIndex].current.scrollIntoView({ inline: 'center', block: "end", behavior: 'smooth' });
+          imgRefs[imageIndex].current.scrollIntoView({ inline: 'center', block: 'end', behavior: 'smooth' });
         }
       }, 100);
     }
@@ -38,15 +41,10 @@ export default ({ images, onExit: handleImageClick, imageIndex }: Props) => {
   return (
     <BigCarousel>
       {images.map((img, index) => (
-        <ImgContainer key={index} ref={imgRefs[index]}>
+        <BigContainer key={index} ref={imgRefs[index]}>
           {loading && <CircleSpinner />}
-          <FullImagePreview
-            src={img.orig.url}
-            alt={img.orig.key}
-            onClick={handleImageClick}
-            onLoad={handleImageLoaded}
-          />
-        </ImgContainer>
+          <FullImagePreview src={img.orig.url} alt={img.orig.key} onClick={handleImageClick} onLoad={handleImageLoaded} />
+        </BigContainer>
       ))}
     </BigCarousel>
   );

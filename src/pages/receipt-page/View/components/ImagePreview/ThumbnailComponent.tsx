@@ -1,36 +1,29 @@
 import { ResponsiveImageData } from '../../../../../config/DomainTypes';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Carousel, CircleSpinner, Img, ImgContainer, imgContainerSidePadding } from './ImagePreview.styles';
+import { Carousel, CircleSpinner, Img, ImgContainerWrapper } from './ImagePreview.styles';
 import { ImageStateList } from '../../ReceiptComponent';
+import { InputButton } from '../../../../../components/ButtonBlackWhite';
 
-const SmallCarousel = styled(Carousel)`
-  height: 30vh;
+const SmallContainer = styled(ImgContainerWrapper)`
+  grid-template-rows: ${(props: {buttonsHidden: boolean}) => props.buttonsHidden ? '22vh' : '4vh 22vh 4vh'}
 `;
 
 const ThumbnailPreview = styled(Img)`
   height: 100%;
 `;
 
-const XButton = styled.button`
-  position: absolute;
-  top: 5px;
-  width: calc(100% - 2 * ${imgContainerSidePadding});
-  display: inline-block;
-  padding: 10px 2vw;
-  border: 0.1em solid white;
-  border-radius: 0.12em;
-  box-sizing: border-box;
-  text-decoration: none;
-  font-weight: bold;
-  text-align: center;
-  transition: all 0.2s;
+const XButton = styled(InputButton)`
   color: white;
   background-color: rgba(255, 0, 0, 0.4);
   :hover,
   :active {
+    color: white;
     background-color: red;
   }
+`;
+
+const DetectButton = styled(InputButton)`
 `;
 
 const mediaQueries = {
@@ -46,22 +39,21 @@ const placeHolder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAA
 type ImageBoxProps = {
   onRemove: () => void;
   onThumbnailClick: () => void;
+  onDetectClick: () => void;
   base64: string | undefined;
   responsiveImageData: ResponsiveImageData | undefined;
-  hideDeleteButton: boolean;
+  hideButtons: boolean;
 };
 
-const Thumbnail = ({ onRemove, onThumbnailClick, base64, responsiveImageData, hideDeleteButton }: ImageBoxProps) => {
+const Thumbnail = ({ onRemove, onThumbnailClick, onDetectClick, base64, responsiveImageData, hideButtons }: ImageBoxProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const handleImageLoaded = () => {
     setLoading(false);
   };
   return (
-    <ImgContainer>
-      {!hideDeleteButton && (
-        <XButton type="button" onClick={onRemove}>
-          X
-        </XButton>
+    <SmallContainer buttonsHidden={hideButtons}>
+      {!hideButtons && (
+        <XButton type="button" onClick={onRemove} value="x"/>
       )}
       {loading && <CircleSpinner />}
       {!responsiveImageData && <ThumbnailPreview src={base64 || placeHolder} alt="user-uploaded" onLoad={handleImageLoaded} />}
@@ -78,26 +70,29 @@ const Thumbnail = ({ onRemove, onThumbnailClick, base64, responsiveImageData, hi
           />
         </picture>
       )}
-    </ImgContainer>
+      {!hideButtons && <DetectButton value="detect" type="button" onClick={onDetectClick} />}
+    </SmallContainer>
   );
 };
 type Props = {
   images: ImageStateList;
   onRemoveClick: (uniqueId: string) => void;
   onThumbnailClick: (index) => void;
-  hideDeleteButton: boolean;
+  onDetectClick: (imageState) => void;
+  hideButtons: boolean;
 };
-export default ({ images, onRemoveClick, onThumbnailClick, hideDeleteButton }: Props) => (
-  <SmallCarousel>
+export default ({ images, onRemoveClick, onThumbnailClick, onDetectClick, hideButtons }: Props) => (
+  <Carousel>
     {images.map((img, index) => (
       <Thumbnail
         key={index}
         onRemove={() => onRemoveClick(img.uniqueId)}
         onThumbnailClick={() => onThumbnailClick(index)}
+        onDetectClick={() => onDetectClick(img)}
         responsiveImageData={img.responsiveImageData || undefined}
         base64={img.base64 || undefined}
-        hideDeleteButton={hideDeleteButton}
+        hideButtons={hideButtons}
       />
     ))}
-  </SmallCarousel>
+  </Carousel>
 );

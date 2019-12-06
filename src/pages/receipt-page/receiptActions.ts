@@ -2,8 +2,22 @@ import { ajax } from 'rxjs/ajax';
 import { map } from 'rxjs/operators';
 import { receiptStore, SelectedReceiptState } from '../../rxjs-as-redux/storeInstances';
 import { Action, AsyncAction, SyncAction } from '../../rxjs-as-redux/RxStore';
-import { createReceiptApi, deleteReceiptApi, editReceiptApi, getAllReceiptsApi, getImagesByReceiptIdApi } from '../../config/endpoints';
-import { Receipt, ReceiptWithImages, RequestWithReceiptAndFiles, ResponsiveImageDataList, UploadedImages } from '../../config/DomainTypes';
+import {
+  createReceiptApi,
+  deleteReceiptApi,
+  detectUploadedApi,
+  editReceiptApi,
+  getAllReceiptsApi,
+  getImagesByReceiptIdApi
+} from '../../config/endpoints';
+import {
+  Receipt,
+  ReceiptWithImages,
+  RequestWithReceiptAndFiles,
+  ResponsiveImageDataList,
+  UploadedImages,
+  UploadedImagesList
+} from '../../config/DomainTypes';
 import { merge, of } from 'rxjs';
 
 type ErrorPayload = SyncAction<undefined>;
@@ -103,4 +117,16 @@ export const deleteReceipt: DeleteReceipt = receiptStore.actionCreator((receiptI
       })
     )
   };
+});
+type Detect = (uploadedImage: UploadedImages) => Action<AsyncAction<UploadedImages>>;
+export const detectUploaded: Detect = receiptStore.actionCreator<AsyncAction<UploadedImages>>((uploadedImage) => {
+  return {
+    type: 'LOADING',
+    payload: ajax.post(detectUploadedApi, uploadedImage, jsonTypeHeader).pipe(
+      map(({response}) => ({
+        type: 'DETECTED',
+        payload: response
+      }))
+    )
+  }
 });

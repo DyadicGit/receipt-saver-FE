@@ -5,3 +5,5 @@ export const editReceiptApi = baseUrl + '/receipt';
 export const createReceiptApi = baseUrl + '/receipt';
 export const deleteReceiptApi = (id: string) => `${baseUrl}/receipt/${id}`;
 export const getImagesByReceiptIdApi = (id: string) => `${baseUrl}/image/byReceiptId/${id}`;
+export const detectUploadedApi = baseUrl + '/image/detectUploaded';
+export const detectExistingApi = baseUrl + '/image/detectExisting';

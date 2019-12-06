@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Receipt, ResponsiveImageData, UploadedImagesList } from '../../../config/DomainTypes';
+import { Receipt, ResponsiveImageData, UploadedImages, UploadedImagesList } from '../../../config/DomainTypes';
 import Field from '../../../components/InputField';
 import { Mode } from './ReceiptContainer';
 import { compressImage, monthsToSeconds, readFileAsBase64, ReadResult, secondsToMonths, toNumber } from '../utils';
@@ -7,13 +7,17 @@ import { Form, UploadButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
-import { setGlobalLoading } from '../receiptActions';
+import { detectUploaded, setGlobalLoading } from '../receiptActions';
 import {ThumbnailPreview, FullScreenPreview } from './components/ImagePreview';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
   of({ uniqueId: file.name, base64: result, userUploaded: true, responsiveImageData: undefined, file } as ImageState);
 const toImageStateFromImageData = (i: ResponsiveImageData): ImageState => ({ responsiveImageData: i, uniqueId: i.orig.key, userUploaded: false });
+const toUploadedImages = ({ base64, file }: any): UploadedImages => ({
+  base64: base64,
+  contentType: file.type
+});
 
 const stateFromReceipt = (receipt: Receipt | undefined) => ({
   id: (receipt && receipt.id) || '',
@@ -75,10 +79,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
     };
     const uploadedImages: UploadedImagesList = images
       .filter(i => i.userUploaded)
-      .map(({ base64, file }: any) => ({
-        base64: base64,
-        contentType: file.type
-      }));
+      .map(toUploadedImages);
     uploadSubmittedForm(receipt as any, uploadedImages);
   };
 
@@ -113,14 +114,23 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
   const handleImageDeletion = uniqueId => {
     setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
+  const handleDetectRequest = (imageState: ImageState) => {
+    if (imageState.userUploaded && imageState.base64) {
+      detectUploaded(toUploadedImages(imageState));
+    } else {
+      console.log('not yet implemented');
+    }
+  };
+
   return (
     <Form id={formId} onSubmit={handleSubmit} autoComplete="off">
       {!showFullScreen && !!images && !!images.length && (
         <ThumbnailPreview
           onRemoveClick={handleImageDeletion}
           onThumbnailClick={showFullScreenAndScrollToImage}
+          onDetectClick={handleDetectRequest}
           images={images}
-          hideDeleteButton={isDisabled[mode]}
+          hideButtons={isDisabled[mode]}
         />
       )}
       {showFullScreen && selectedReceipt && selectedReceipt.images && (
