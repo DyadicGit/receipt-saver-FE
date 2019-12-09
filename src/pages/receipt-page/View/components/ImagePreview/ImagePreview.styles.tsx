@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 import { ReactComponent as circleSpinner } from '../../../../../components/circleSpinner.svg';
 
+export const flexInitSizeFix = 'max-width: fit-content;';
+
 export const imgContainerSidePadding = '10px';
 export const ImgContainerWrapper = styled.div`
-    max-width: fit-content;
- 
+  ${flexInitSizeFix};
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -20,9 +21,8 @@ export const Carousel = styled.div`
   scroll-snap-type: x mandatory;
 `;
 export const Img = styled.img`
-    max-width: fit-content;
+  ${flexInitSizeFix};
   max-height: 100%;
-  width: auto;
   object-fit: scale-down;
 `;
 

@@ -15,8 +15,7 @@ import {
   ReceiptWithImages,
   RequestWithReceiptAndFiles,
   ResponsiveImageDataList,
-  UploadedImages,
-  UploadedImagesList
+  UploadedImages
 } from '../../config/DomainTypes';
 import { merge, of } from 'rxjs';
 

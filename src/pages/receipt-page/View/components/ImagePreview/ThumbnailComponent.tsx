@@ -1,40 +1,29 @@
 import { ResponsiveImageData } from '../../../../../config/DomainTypes';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Carousel, CircleSpinner, Img, ImgContainerWrapper } from './ImagePreview.styles';
+import { Carousel, CircleSpinner, flexInitSizeFix, Img, ImgContainerWrapper as SmallContainer } from './ImagePreview.styles';
 import { ImageStateList } from '../../ReceiptComponent';
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
-
 
 const SmallCarousel = styled(Carousel)`
   height: 30vh;
 `;
 
-const SmallContainer = styled(ImgContainerWrapper)`
-    max-width: fit-content;
-`;
-
 const Picture = styled.picture`
-      max-width: fit-content;
-    
+  ${flexInitSizeFix};
   flex-basis: 80%;
   flex-grow: 0;
   height: 100%;
-  width: auto;
 `;
 
 const gapBetweenButtons = '5px';
 const UploadedImgThumbnailPreview = styled.img`
-    max-width: fit-content;
-    
+  ${flexInitSizeFix};
   flex-basis: 80%;
   flex-grow: 0;
-  width: auto;
   max-height: calc(80% - 2 * ${gapBetweenButtons});
 `;
 const XButton = styled(InputButton)`
-  min-width: auto;
-  width: auto;
   flex-basis: 10%;
   color: white;
   background-color: rgba(255, 0, 0, 0.4);
@@ -47,15 +36,11 @@ const XButton = styled(InputButton)`
 `;
 
 const DetectButton = styled(InputButton)`
-  min-width: auto;
-  width: auto;
   flex-basis: 10%;
   margin-top: ${gapBetweenButtons};
 `;
 
 const EmptySpace = styled.div`
-  min-width: auto;
-  width: auto;
   height: calc(10% + ${gapBetweenButtons});
 `;
 
