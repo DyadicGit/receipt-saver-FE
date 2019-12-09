@@ -3,7 +3,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import Hammer from 'hammerjs';
 import { GlobalState, Receipt, UploadedImagesList } from '../../../config/DomainTypes';
 import RoutedPage from '../../page-wrapper/RoutedPage';
-import ReceiptForm from './ReceiptComponent';
+import ReceiptForm, { ImageState } from './ReceiptComponent';
 import DeletionConfirmModal from './components/ConfirmationModal';
 import {
   createReceipt,
@@ -15,12 +15,13 @@ import {
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
+import DetectImageModal from './components/DetectImageModal';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 let swipeListener$ = new Subject();
 swipeListener$.pipe(throttleTime(500)).subscribe((fn: any) => fn());
 const swipeAction = (event, history) => () => {
-  // console.log(event.type + ' gesture detected.');
+  console.log(event.type + ' gesture detected.');
   history.push(`/receipt`);
 };
 
@@ -59,6 +60,8 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
       });
     }
   });
+  const [showDetectScreen, setShowDetectScreen] = useState<boolean>(false);
+  const [imageToDetect, setImageToDetect] = useState<ImageState | undefined>(undefined);
 
   const formId = (receipt && receipt.id) || 'create';
 
@@ -71,6 +74,11 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
       createReceipt(receipt, userUploadedImages);
       history.push('/receipt');
     }
+  };
+
+  const setImageToDetectOpenDetectScreen = (imageState: ImageState) => {
+    setImageToDetect(imageState);
+    setShowDetectScreen(true);
   };
 
   return (
@@ -91,9 +99,11 @@ const ReceiptContainer = ({ state: { isLoading, receipts, selectedReceipt }, ini
             selectedReceipt={selectedReceipt}
             mode={mode}
             uploadSubmittedForm={uploadSubmittedForm}
+            onDetectClick={setImageToDetectOpenDetectScreen}
           />
         </RoutedPage>
       )}
+      {showDetectScreen && imageToDetect && <DetectImageModal imageState={imageToDetect} onDismiss={() => setShowDetectScreen(false)} />}
       {receipt && mode === 'VIEW' && (
         <DeletionConfirmModal show={showConf} onConfirm={() => handleConfirmedDelete(receipt.id)} onDismiss={() => setShowConf(false)} />
       )}

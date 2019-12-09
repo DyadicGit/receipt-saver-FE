@@ -19,8 +19,8 @@ export const Page = styled.div`
   background-color: ${colors.pageWrapper.backgroundEclipse};
 `;
 
-const navBarHeight = '10vh';
-const navBarHeightLandscape = '20vh';
+export const navBarHeight = '10vh';
+export const navBarHeightLandscape = '20vh';
 export const bodyHeight = '90vh';
 export const bodyHeightLandscape = '80vh';
 export const bodyWidth = '90vw';

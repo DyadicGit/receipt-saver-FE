@@ -7,14 +7,16 @@ import { Form, UploadButton } from './ReceiptComponent.styles';
 import { forkJoin, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SelectedReceiptState } from '../../../rxjs-as-redux/storeInstances';
-import { detectUploaded, setGlobalLoading } from '../receiptActions';
-import {ThumbnailPreview, FullScreenPreview } from './components/ImagePreview';
+import { setGlobalLoading } from '../receiptActions';
+import { FullScreenPreview, ThumbnailPreview } from './components/ImagePreview';
 
 const isDisabled = { EDIT: false, VIEW: true, CREATE: false };
 const toImageState = ({ file, result }: ReadResult): Observable<ImageState> =>
   of({ uniqueId: file.name, base64: result, userUploaded: true, responsiveImageData: undefined, file } as ImageState);
 const toImageStateFromImageData = (i: ResponsiveImageData): ImageState => ({ responsiveImageData: i, uniqueId: i.orig.key, userUploaded: false });
-const toUploadedImages = ({ base64, file }: any): UploadedImages => ({
+
+// ToDo: remove exporting on successful image OCR implementation
+export const toUploadedImages = ({ base64, file }: any): UploadedImages => ({
   base64: base64,
   contentType: file.type
 });
@@ -34,6 +36,7 @@ type ReceiptFormProps = {
   selectedReceipt: SelectedReceiptState;
   mode: Mode;
   uploadSubmittedForm: (receipt: Receipt, userUploadedImages: UploadedImagesList) => void;
+  onDetectClick: (imageState: ImageState) => void;
 };
 type ReceiptFormState = {
   id: string;
@@ -43,7 +46,7 @@ type ReceiptFormState = {
   totalPrice: number;
   warrantyPeriod: number;
 };
-type ImageState = {
+export type ImageState = {
   uniqueId: string;
   responsiveImageData?: ResponsiveImageData;
   userUploaded: boolean;
@@ -52,7 +55,7 @@ type ImageState = {
 };
 export type ImageStateList = ImageState[];
 
-const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm }: ReceiptFormProps) => {
+const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmittedForm, onDetectClick }: ReceiptFormProps) => {
   const [state, setState] = useState<ReceiptFormState>(stateFromReceipt(loadedReceipt));
   const [images, setImages] = useState<ImageStateList>([]);
   const [showFullScreen, setShowFullScreen] = useState<boolean>(false);
@@ -114,13 +117,6 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
   const handleImageDeletion = uniqueId => {
     setImages(images.filter(img => img.uniqueId !== uniqueId));
   };
-  const handleDetectRequest = (imageState: ImageState) => {
-    if (imageState.userUploaded && imageState.base64) {
-      detectUploaded(toUploadedImages(imageState));
-    } else {
-      console.log('not yet implemented');
-    }
-  };
 
   return (
     <Form id={formId} onSubmit={handleSubmit} autoComplete="off">
@@ -128,7 +124,7 @@ const ReceiptForm = ({ formId, loadedReceipt, selectedReceipt, mode, uploadSubmi
         <ThumbnailPreview
           onRemoveClick={handleImageDeletion}
           onThumbnailClick={showFullScreenAndScrollToImage}
-          onDetectClick={handleDetectRequest}
+          onDetectClick={onDetectClick}
           images={images}
           hideButtons={isDisabled[mode]}
         />
