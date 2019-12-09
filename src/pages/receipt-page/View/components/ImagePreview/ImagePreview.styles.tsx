@@ -3,10 +3,12 @@ import { ReactComponent as circleSpinner } from '../../../../../components/circl
 
 export const imgContainerSidePadding = '10px';
 export const ImgContainerWrapper = styled.div`
-  display: grid;
-  grid-row-gap: 5px;
+    max-width: fit-content;
+ 
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
   padding: 0 ${imgContainerSidePadding} 0 ${imgContainerSidePadding};
-  position: relative;
   scroll-snap-align: start;
 `;
 
@@ -18,10 +20,10 @@ export const Carousel = styled.div`
   scroll-snap-type: x mandatory;
 `;
 export const Img = styled.img`
-  //min-width: 30vw;
-  //@media screen and (orientation: landscape) {
-  //  min-width: 10vw;
-  //}
+    max-width: fit-content;
+  max-height: 100%;
+  width: auto;
+  object-fit: scale-down;
 `;
 
 const svgIconSize = '36px';

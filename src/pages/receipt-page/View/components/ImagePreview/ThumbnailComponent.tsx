@@ -5,17 +5,40 @@ import { Carousel, CircleSpinner, Img, ImgContainerWrapper } from './ImagePrevie
 import { ImageStateList } from '../../ReceiptComponent';
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
 
+
+const SmallCarousel = styled(Carousel)`
+  height: 30vh;
+`;
+
 const SmallContainer = styled(ImgContainerWrapper)`
-  grid-template-rows: ${(props: {buttonsHidden: boolean}) => props.buttonsHidden ? '22vh' : '4vh 22vh 4vh'}
+    max-width: fit-content;
 `;
 
-const ThumbnailPreview = styled(Img)`
+const Picture = styled.picture`
+      max-width: fit-content;
+    
+  flex-basis: 80%;
+  flex-grow: 0;
   height: 100%;
+  width: auto;
 `;
 
+const gapBetweenButtons = '5px';
+const UploadedImgThumbnailPreview = styled.img`
+    max-width: fit-content;
+    
+  flex-basis: 80%;
+  flex-grow: 0;
+  width: auto;
+  max-height: calc(80% - 2 * ${gapBetweenButtons});
+`;
 const XButton = styled(InputButton)`
+  min-width: auto;
+  width: auto;
+  flex-basis: 10%;
   color: white;
   background-color: rgba(255, 0, 0, 0.4);
+  margin-bottom: ${gapBetweenButtons};
   :hover,
   :active {
     color: white;
@@ -24,6 +47,16 @@ const XButton = styled(InputButton)`
 `;
 
 const DetectButton = styled(InputButton)`
+  min-width: auto;
+  width: auto;
+  flex-basis: 10%;
+  margin-top: ${gapBetweenButtons};
+`;
+
+const EmptySpace = styled.div`
+  min-width: auto;
+  width: auto;
+  height: calc(10% + ${gapBetweenButtons});
 `;
 
 const mediaQueries = {
@@ -51,24 +84,23 @@ const Thumbnail = ({ onRemove, onThumbnailClick, onDetectClick, base64, responsi
     setLoading(false);
   };
   return (
-    <SmallContainer buttonsHidden={hideButtons}>
-      {!hideButtons && (
-        <XButton type="button" onClick={onRemove} value="x"/>
-      )}
+    <SmallContainer>
+      {!hideButtons && <XButton type="button" onClick={onRemove} value="x" />}
+      {hideButtons && <EmptySpace />}
       {loading && <CircleSpinner />}
-      {!responsiveImageData && <ThumbnailPreview src={base64 || placeHolder} alt="user-uploaded" onLoad={handleImageLoaded} />}
+      {!responsiveImageData && <UploadedImgThumbnailPreview src={base64 || placeHolder} alt="user-uploaded" onLoad={handleImageLoaded} />}
       {!!responsiveImageData && (
-        <picture onLoad={handleImageLoaded}>
+        <Picture onLoad={handleImageLoaded}>
           <source media={mediaQueries.px320} srcSet={responsiveImageData.px320.url} />
           <source media={mediaQueries.px600} srcSet={responsiveImageData.px600.url} />
           <source media={mediaQueries.px900} srcSet={responsiveImageData.px900.url} />
           <source media={mediaQueries.orig} srcSet={responsiveImageData.orig.url} />
-          <ThumbnailPreview
+          <Img
             src={responsiveImageData.orig.url}
             alt={mediaQueries.current() ? responsiveImageData[mediaQueries.current()].url : 'image-download-name-absent'}
             onClick={onThumbnailClick}
           />
-        </picture>
+        </Picture>
       )}
       {!hideButtons && <DetectButton value="detect" type="button" onClick={onDetectClick} />}
     </SmallContainer>
@@ -82,7 +114,7 @@ type Props = {
   hideButtons: boolean;
 };
 export default ({ images, onRemoveClick, onThumbnailClick, onDetectClick, hideButtons }: Props) => (
-  <Carousel>
+  <SmallCarousel>
     {images.map((img, index) => (
       <Thumbnail
         key={index}
@@ -94,5 +126,5 @@ export default ({ images, onRemoveClick, onThumbnailClick, onDetectClick, hideBu
         hideButtons={hideButtons}
       />
     ))}
-  </Carousel>
+  </SmallCarousel>
 );

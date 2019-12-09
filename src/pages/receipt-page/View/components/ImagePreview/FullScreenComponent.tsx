@@ -11,14 +11,13 @@ export const BigCarousel = styled(Carousel)`
 `;
 
 const BigContainer = styled(ImgContainerWrapper)`
-  grid-template-rows: ${bodyHeight};
+  max-height: ${bodyHeight};
   @media screen and (orientation: landscape) {
-    grid-template-rows: ${bodyHeightLandscape};
+    max-height: ${bodyHeightLandscape};
   }
 `;
 
 const FullImagePreview = styled(Img)`
-  max-height: 100%;
   max-width: calc(${bodyWidth} - 2 * ${imgContainerSidePadding});
 `;
 
