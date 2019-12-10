@@ -34,26 +34,25 @@ const CanvasContainer = styled.div`
 
 type Props = { imageState: ImageState; onDismiss: () => void };
 export default ({ imageState, onDismiss }: Props) => {
-  const canvasContainer = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState<{ height: number; width: number } | null>(null);
   const [ctx, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  useEffect(() => {
-    if (canvasContainer && canvasContainer.current) {
-      const height = canvasContainer.current.offsetHeight - 1;
-      const width = canvasContainer.current.offsetWidth - 1;
+
+  const onContainerSet = useCallback((ref: HTMLDivElement) => {
+    if (ref) {
+      const height = ref.offsetHeight - 1;
+      const width = ref.offsetWidth - 1;
       setCanvasSize({ height, width });
     }
-  }, [canvasContainer]);
-  useEffect(() => {
-    if (canvasRef && canvasRef.current && canvasSize && Object.getOwnPropertyNames(canvasSize).length) {
-      canvasRef.current.setAttribute('height', canvasSize.height.toString());
-      canvasRef.current.setAttribute('width', canvasSize.width.toString());
-      setContext(canvasRef.current.getContext('2d'));
-      setCanvas(canvasRef.current);
+  }, []);
+  const onCanvasSet = useCallback((ref: HTMLCanvasElement) => {
+    if (ref && canvasSize && Object.getOwnPropertyNames(canvasSize).length) {
+      ref.setAttribute('height', canvasSize.height.toString());
+      ref.setAttribute('width', canvasSize.width.toString());
+      setContext(ref.getContext('2d'));
+      setCanvas(ref);
     }
-  }, [canvasRef, canvasSize]);
+  }, [canvasSize]);
 
   useEffect(() => {
     if (canvas) {
@@ -77,8 +76,8 @@ export default ({ imageState, onDismiss }: Props) => {
     <>
       <Container>
         <CloseButton type="button" value="Close" onClick={onDismiss} />
-        <CanvasContainer ref={canvasContainer}>
-          <canvas ref={canvasRef}/>
+        <CanvasContainer ref={onContainerSet}>
+          <canvas ref={onCanvasSet}/>
         </CanvasContainer>
       </Container>
       <FullPageDimmer zIndex={zIndexDimmer} />
