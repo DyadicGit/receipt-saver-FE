@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ImageState, toUploadedImages } from '../../ReceiptComponent';
 import { detectUploaded } from '../../../receiptActions';
 import { bodyHeight, bodyHeightLandscape, navBarHeight, navBarHeightLandscape } from '../../../../page-wrapper/RoutedPage.styles';
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
 import FullPageDimmer from '../../../../../components/FullPageDimmer';
+import addPaintTools from './canvasDrawingFunctions';
 
 const zIndexDimmer = 1;
 const zIndexModal = 2;
@@ -24,13 +25,47 @@ const Container = styled.div`
 
 const CloseButton = styled(InputButton)`
   height: 40px;
-  width: 100%;
+  width: 50%;
 `;
+const ConfirmButton = styled(InputButton)`
+  height: 40px;
+  width: 50%;
+`;
+
 const CanvasContainer = styled.div`
   width: 100%;
   height: 92%;
   background-color: #3e3e3e;
 `;
+const BrushColor: Color = { R: 250, G: 255, B: 0 };
+const invertColors = (imageData: ImageData) => {
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    // red
+    data[i] = 255 - data[i];
+    // green
+    data[i + 1] = 255 - data[i + 1];
+    // blue
+    data[i + 2] = 255 - data[i + 2];
+  }
+};
+type Color = { R: number; G: number; B: number };
+const replaceColors = (imageData: ImageData, oldColor: Color, newColor: Color) => {
+  const { R: oldRed, G: oldGreen, B: oldBlue } = oldColor;
+  const { R: newRed, G: newGreen, B: newBlue } = newColor;
+
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    // is this pixel the old rgb?
+    if (imageData.data[i] === oldRed && imageData.data[i + 1] === oldGreen && imageData.data[i + 2] === oldBlue) {
+      // change to your new rgb
+      imageData.data[i] = newRed;
+      imageData.data[i + 1] = newGreen;
+      imageData.data[i + 2] = newBlue;
+      imageData.data[i + 3] = 0;
+    }
+  }
+};
 
 type Props = { imageState: ImageState; onDismiss: () => void };
 export default ({ imageState, onDismiss }: Props) => {
@@ -45,24 +80,17 @@ export default ({ imageState, onDismiss }: Props) => {
       setCanvasSize({ height, width });
     }
   }, []);
-  const onCanvasSet = useCallback((ref: HTMLCanvasElement) => {
-    if (ref && canvasSize && Object.getOwnPropertyNames(canvasSize).length) {
-      ref.setAttribute('height', canvasSize.height.toString());
-      ref.setAttribute('width', canvasSize.width.toString());
-      setContext(ref.getContext('2d'));
-      setCanvas(ref);
-    }
-  }, [canvasSize]);
-
-  useEffect(() => {
-    if (canvas) {
-      canvas.onmousedown = e => {
-        var mouseX = e.pageX;
-        var mouseY = e.pageY;
-        console.log({ mouseX, mouseY });
-      };
-    }
-  }, [canvas]);
+  const onCanvasSet = useCallback(
+    (ref: HTMLCanvasElement) => {
+      if (ref && canvasSize && Object.getOwnPropertyNames(canvasSize).length) {
+        ref.setAttribute('height', canvasSize.height.toString());
+        ref.setAttribute('width', canvasSize.width.toString());
+        setContext(ref.getContext('2d'));
+        setCanvas(ref);
+      }
+    },
+    [canvasSize]
+  );
 
   const sendImageToServer = () => {
     if (imageState.userUploaded && imageState.base64) {
@@ -71,13 +99,33 @@ export default ({ imageState, onDismiss }: Props) => {
       console.log('not yet implemented');
     }
   };
+  const handleConfirm = () => {
+    if (ctx && canvasSize && Object.getOwnPropertyNames(canvasSize)) {
+      const imageData: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
+      // invertColors(imageData);
+      replaceColors(imageData, BrushColor, { R: 0, G: 0, B: 0 });
+      ctx.putImageData(imageData, 0, 0);
+    }
+  };
 
+  useEffect(() => {
+    if (ctx && canvas && canvasSize && Object.getOwnPropertyNames(canvasSize).length && imageState && imageState.responsiveImageData) {
+      const backgroundImage = new Image();
+      backgroundImage.onload = () => {
+        ctx.drawImage(backgroundImage, 0, 0, canvasSize.width, canvasSize.height);
+        addPaintTools(canvas, ctx, `rgb(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 1)`, 25, 1);
+      };
+      backgroundImage.crossOrigin = 'Anonymous';
+      backgroundImage.src = imageState.responsiveImageData.orig.url;
+    }
+  }, [ctx, canvas, canvasSize]);
   return (
     <>
       <Container>
         <CloseButton type="button" value="Close" onClick={onDismiss} />
+        <ConfirmButton type="button" value="Confirm" onClick={handleConfirm} />
         <CanvasContainer ref={onContainerSet}>
-          <canvas ref={onCanvasSet}/>
+          <canvas ref={onCanvasSet} />
         </CanvasContainer>
       </Container>
       <FullPageDimmer zIndex={zIndexDimmer} />
