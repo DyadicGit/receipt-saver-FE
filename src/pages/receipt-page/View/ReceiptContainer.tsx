@@ -15,7 +15,7 @@ import {
 import ButtonBlackWhite from '../../../components/ButtonBlackWhite';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import DetectImageModal from './components/DetectImageModal';
+import DetectImageModal from './components/ImageDrawing/DetectImageModal';
 
 export type Mode = 'EDIT' | 'VIEW' | 'CREATE';
 let swipeListener$ = new Subject();
