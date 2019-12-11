@@ -6,6 +6,7 @@ import { bodyHeight, bodyHeightLandscape, navBarHeight, navBarHeightLandscape } 
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
 import FullPageDimmer from '../../../../../components/FullPageDimmer';
 import addDrawingTools from './canvasDrawingTools';
+import colorUtils, { Color } from "./colorUtils";
 
 const zIndexDimmer = 1;
 const zIndexModal = 2;
@@ -44,34 +45,7 @@ const CanvasWithImage = styled.canvas`
 `;
 
 const BrushColor: Color = { R: 255, G: 255, B: 0, alpha: 0.1 };
-const invertColors = (imageData: ImageData) => {
-  const data = imageData.data;
 
-  for (let i = 0; i < data.length; i += 4) {
-    // red
-    data[i] = 255 - data[i];
-    // green
-    data[i + 1] = 255 - data[i + 1];
-    // blue
-    data[i + 2] = 255 - data[i + 2];
-  }
-};
-type Color = { R: number; G: number; B: number; alpha?: number };
-const replaceColors = (imageData: ImageData, oldColor: Color, newColor: Color) => {
-  const { R: oldRed, G: oldGreen, B: oldBlue } = oldColor;
-  const { R: newRed, G: newGreen, B: newBlue } = newColor;
-
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    // is this pixel the old rgb?
-    if (imageData.data[i] === oldRed && imageData.data[i + 1] === oldGreen && imageData.data[i + 2] === oldBlue) {
-      // change to your new rgb
-      imageData.data[i] = newRed;
-      imageData.data[i + 1] = newGreen;
-      imageData.data[i + 2] = newBlue;
-      imageData.data[i + 3] = 0;
-    }
-  }
-};
 
 type Props = { imageState: ImageState; onDismiss: () => void };
 export default ({ imageState, onDismiss }: Props) => {
@@ -108,8 +82,8 @@ export default ({ imageState, onDismiss }: Props) => {
   const handleConfirm = () => {
     if (ctx && canvasSize && Object.getOwnPropertyNames(canvasSize)) {
       const imageData: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
-      // invertColors(imageData);
-      replaceColors(imageData, BrushColor, { R: 0, G: 0, B: 0 });
+      colorUtils.fillTransparent(imageData);
+      colorUtils.removeColor(imageData, BrushColor);
       ctx.putImageData(imageData, 0, 0);
     }
   };
