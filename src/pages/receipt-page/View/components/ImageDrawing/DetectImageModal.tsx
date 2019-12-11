@@ -5,7 +5,7 @@ import { detectUploaded } from '../../../receiptActions';
 import { bodyHeight, bodyHeightLandscape, navBarHeight, navBarHeightLandscape } from '../../../../page-wrapper/RoutedPage.styles';
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
 import FullPageDimmer from '../../../../../components/FullPageDimmer';
-import addPaintTools from './canvasDrawingFunctions';
+import addDrawingTools from './canvasDrawingTools';
 
 const zIndexDimmer = 1;
 const zIndexModal = 2;
@@ -43,8 +43,7 @@ const CanvasWithImage = styled.canvas`
   background-size: contain;
 `;
 
-
-const BrushColor: Color = { R: 255, G: 255, B: 0 };
+const BrushColor: Color = { R: 255, G: 255, B: 0, alpha: 0.1 };
 const invertColors = (imageData: ImageData) => {
   const data = imageData.data;
 
@@ -57,7 +56,7 @@ const invertColors = (imageData: ImageData) => {
     data[i + 2] = 255 - data[i + 2];
   }
 };
-type Color = { R: number; G: number; B: number };
+type Color = { R: number; G: number; B: number; alpha?: number };
 const replaceColors = (imageData: ImageData, oldColor: Color, newColor: Color) => {
   const { R: oldRed, G: oldGreen, B: oldBlue } = oldColor;
   const { R: newRed, G: newGreen, B: newBlue } = newColor;
@@ -116,15 +115,10 @@ export default ({ imageState, onDismiss }: Props) => {
   };
 
   useEffect(() => {
-    if (ctx && canvas && canvasSize && Object.getOwnPropertyNames(canvasSize).length && imageState && imageState.responsiveImageData) {
-/*      const backgroundImage = new Image();
-      backgroundImage.onload = () => {
-        ctx.drawImage(backgroundImage, 0, 0, canvasSize.width, canvasSize.height);
-        addPaintTools(canvas, ctx, `rgb(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 0.1)`, 25, 1);
-      };
-      backgroundImage.crossOrigin = 'Anonymous';
-      backgroundImage.src = imageState.responsiveImageData.orig.url;*/
-      addPaintTools(canvas, ctx, `rgba(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 0.4)`, 25, 1);
+    if (ctx && canvas) {
+      const colour = `rgba(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, ${BrushColor.alpha})`;
+      const opacity = BrushColor.alpha;
+      addDrawingTools(canvas, ctx, colour, 30, opacity);
     }
   }, [ctx, canvas, canvasSize]);
   return (
@@ -133,7 +127,7 @@ export default ({ imageState, onDismiss }: Props) => {
         <CloseButton type="button" value="Close" onClick={onDismiss} />
         <ConfirmButton type="button" value="Confirm" onClick={handleConfirm} />
         <CanvasContainer ref={onContainerSet}>
-          <CanvasWithImage imageUrl={imageState && imageState.responsiveImageData && imageState.responsiveImageData.orig.url || ''} ref={onCanvasSet} />
+          {imageState && imageState.responsiveImageData && <CanvasWithImage imageUrl={imageState.responsiveImageData.orig.url} ref={onCanvasSet} />}
         </CanvasContainer>
       </Container>
       <FullPageDimmer zIndex={zIndexDimmer} />
