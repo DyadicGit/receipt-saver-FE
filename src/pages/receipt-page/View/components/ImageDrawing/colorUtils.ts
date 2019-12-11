@@ -8,18 +8,20 @@ const invertColors = (imageData: ImageData) => {
   }
 };
 export type Color = { R: number; G: number; B: number; alpha?: number };
-const replaceColor = (imageData: ImageData, oldColor: Color, newColor: Color) => {
+const black = { R: 0, G: 0, B: 0 };
+
+const replaceColor = (imageData: ImageData, oldColor: Color, newColor: Color = black) => {
   const { R: oldRed, G: oldGreen, B: oldBlue } = oldColor;
   const { R: newRed, G: newGreen, B: newBlue } = newColor;
 
   for (let i = 0; i < imageData.data.length; i += 4) {
     const pix = imageData.data;
 
-    if (pix[i] === oldRed && pix[i + 1] === oldGreen && pix[i + 2] === oldBlue) {
+    if (isApprox(pix[i], oldRed, 155) && isApprox(pix[i + 1], oldGreen, 155) && isApprox(pix[i + 2], oldBlue, 155)) {
       pix[i] = newRed;
       pix[i + 1] = newGreen;
       pix[i + 2] = newBlue;
-      pix[i + 3] = 0;
+      pix[i + 3] = 255;
     }
   }
 };
@@ -27,7 +29,6 @@ const isApprox = (a, b, range) => {
   const d = a - b;
   return d < range && d > -range;
 };
-const black = { R: 0, G: 0, B: 0 };
 
 const fillTransparent = (imageData: ImageData, colorToFill: Color = black) => {
   const pix = imageData.data;
@@ -52,4 +53,4 @@ const removeColor = (imageData: ImageData, colorToRemove: Color) => {
   }
 };
 
-export default { removeColor, invertColors, replaceColor, fillTransparent };
+export default { removeColor, invertColors, replaceColor, fillTransparent, color: {black} };

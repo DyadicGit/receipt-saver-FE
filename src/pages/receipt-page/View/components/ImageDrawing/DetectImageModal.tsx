@@ -36,22 +36,24 @@ const ConfirmButton = styled(InputButton)`
 const CanvasContainer = styled.div`
   width: 100%;
   height: 92%;
-  background-color: #3e3e3e;
+  //background-color: #3e3e3e;
+  background-color: red;
 `;
 
 const CanvasWithImage = styled.canvas`
-  background: url("${(props: { imageUrl: string }) => props.imageUrl}") no-repeat;
+  // background: url("${(props: { imageUrl: string }) => props.imageUrl}") no-repeat;
   background-size: contain;
 `;
 
 const BrushColor: Color = { R: 255, G: 255, B: 0, alpha: 0.1 };
-
+const defaultMimeType = 'image/png';
 
 type Props = { imageState: ImageState; onDismiss: () => void };
 export default ({ imageState, onDismiss }: Props) => {
   const [canvasSize, setCanvasSize] = useState<{ height: number; width: number } | null>(null);
   const [ctx, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [croppedImage, setCroppedImage] = useState<string>('');
 
   const onContainerSet = useCallback((ref: HTMLDivElement) => {
     if (ref) {
@@ -72,19 +74,30 @@ export default ({ imageState, onDismiss }: Props) => {
     [canvasSize]
   );
 
-  const sendImageToServer = () => {
+  const sendImageToServer = (croppedImage) => {
     if (imageState.userUploaded && imageState.base64) {
       detectUploaded(toUploadedImages(imageState));
     } else {
-      console.log('not yet implemented');
+      detectUploaded({base64: croppedImage, contentType: defaultMimeType});
     }
   };
   const handleConfirm = () => {
-    if (ctx && canvasSize && Object.getOwnPropertyNames(canvasSize)) {
-      const imageData: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
-      colorUtils.fillTransparent(imageData);
-      colorUtils.removeColor(imageData, BrushColor);
-      ctx.putImageData(imageData, 0, 0);
+    if (ctx && canvasSize && Object.getOwnPropertyNames(canvasSize) && imageState && imageState.responsiveImageData && canvas) {
+      const topLayer: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
+      colorUtils.replaceColor(topLayer, BrushColor, colorUtils.color.black);
+      const bottomLayer = new Image();
+      bottomLayer.onload = () => {
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.putImageData(topLayer, 0, 0);
+        ctx.globalCompositeOperation = 'source-in';
+        ctx.drawImage(bottomLayer, 0, 0, canvasSize.width, canvasSize.height);
+        const resultOfCroppedCanvas = canvas.toDataURL(defaultMimeType);
+        setCroppedImage(resultOfCroppedCanvas);
+        sendImageToServer(resultOfCroppedCanvas)
+      };
+      bottomLayer.crossOrigin = 'Anonymous';
+      bottomLayer.src = imageState.responsiveImageData.orig.url;
     }
   };
 
