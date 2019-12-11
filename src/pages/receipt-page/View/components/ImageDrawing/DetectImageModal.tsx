@@ -37,7 +37,14 @@ const CanvasContainer = styled.div`
   height: 92%;
   background-color: #3e3e3e;
 `;
-const BrushColor: Color = { R: 250, G: 255, B: 0 };
+
+const CanvasWithImage = styled.canvas`
+  background: url("${(props: { imageUrl: string }) => props.imageUrl}") no-repeat;
+  background-size: contain;
+`;
+
+
+const BrushColor: Color = { R: 255, G: 255, B: 0 };
 const invertColors = (imageData: ImageData) => {
   const data = imageData.data;
 
@@ -110,13 +117,14 @@ export default ({ imageState, onDismiss }: Props) => {
 
   useEffect(() => {
     if (ctx && canvas && canvasSize && Object.getOwnPropertyNames(canvasSize).length && imageState && imageState.responsiveImageData) {
-      const backgroundImage = new Image();
+/*      const backgroundImage = new Image();
       backgroundImage.onload = () => {
         ctx.drawImage(backgroundImage, 0, 0, canvasSize.width, canvasSize.height);
-        addPaintTools(canvas, ctx, `rgb(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 1)`, 25, 1);
+        addPaintTools(canvas, ctx, `rgb(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 0.1)`, 25, 1);
       };
       backgroundImage.crossOrigin = 'Anonymous';
-      backgroundImage.src = imageState.responsiveImageData.orig.url;
+      backgroundImage.src = imageState.responsiveImageData.orig.url;*/
+      addPaintTools(canvas, ctx, `rgba(${BrushColor.R}, ${BrushColor.G}, ${BrushColor.B}, 0.4)`, 25, 1);
     }
   }, [ctx, canvas, canvasSize]);
   return (
@@ -125,7 +133,7 @@ export default ({ imageState, onDismiss }: Props) => {
         <CloseButton type="button" value="Close" onClick={onDismiss} />
         <ConfirmButton type="button" value="Confirm" onClick={handleConfirm} />
         <CanvasContainer ref={onContainerSet}>
-          <canvas ref={onCanvasSet} />
+          <CanvasWithImage imageUrl={imageState && imageState.responsiveImageData && imageState.responsiveImageData.orig.url || ''} ref={onCanvasSet} />
         </CanvasContainer>
       </Container>
       <FullPageDimmer zIndex={zIndexDimmer} />

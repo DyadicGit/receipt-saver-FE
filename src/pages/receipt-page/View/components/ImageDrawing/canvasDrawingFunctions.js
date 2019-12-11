@@ -6,6 +6,8 @@ const addPaintTools = (canvas, context, colour = '#3d34a5', strokeWidth = 25, op
   let latestPoint;
   let drawing = false;
   context.globalAlpha = opacity;
+  // context.globalCompositeOperation = 'source-over';
+  context.globalCompositeOperation = 'destination-atop';
   // Drawing functions
   const continueStroke = newPoint => {
     context.beginPath();
