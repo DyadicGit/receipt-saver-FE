@@ -6,7 +6,7 @@ import { bodyHeight, bodyHeightLandscape, navBarHeight, navBarHeightLandscape } 
 import { InputButton } from '../../../../../components/ButtonBlackWhite';
 import FullPageDimmer from '../../../../../components/FullPageDimmer';
 import addDrawingTools from './canvasDrawingTools';
-import colorUtils, { Color } from "./colorUtils";
+import colorUtils, { Color } from './colorUtils';
 
 const zIndexDimmer = 1;
 const zIndexModal = 2;
@@ -33,16 +33,17 @@ const ConfirmButton = styled(InputButton)`
   width: 50%;
 `;
 
-const CanvasContainer = styled.div`
+const Img = styled.img`
   width: 100%;
-  height: 92%;
-  //background-color: #3e3e3e;
-  background-color: red;
+`;
+const WorkspaceContainer = styled.div`
+  position: relative;
 `;
 
-const CanvasWithImage = styled.canvas`
-  // background: url("${(props: { imageUrl: string }) => props.imageUrl}") no-repeat;
-  background-size: contain;
+const Canvas = styled.canvas`
+  position: absolute;
+  top: 0;
+  left: 0;
 `;
 
 const BrushColor: Color = { R: 255, G: 255, B: 0, alpha: 0.1 };
@@ -53,12 +54,11 @@ export default ({ imageState, onDismiss }: Props) => {
   const [canvasSize, setCanvasSize] = useState<{ height: number; width: number } | null>(null);
   const [ctx, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string>('');
 
-  const onContainerSet = useCallback((ref: HTMLDivElement) => {
-    if (ref) {
-      const height = ref.offsetHeight - 1;
-      const width = ref.offsetWidth - 1;
+  const onImageSet = useCallback((e) => {
+    if (e.target) {
+      const height = e.target.offsetHeight - 1;
+      const width = e.target.offsetWidth - 1;
       setCanvasSize({ height, width });
     }
   }, []);
@@ -74,27 +74,27 @@ export default ({ imageState, onDismiss }: Props) => {
     [canvasSize]
   );
 
-  const sendImageToServer = (croppedImage) => {
+  const sendImageForDetection = croppedImage => {
     if (imageState.userUploaded && imageState.base64) {
       detectUploaded(toUploadedImages(imageState));
     } else {
-      detectUploaded({base64: croppedImage, contentType: defaultMimeType});
+      detectUploaded({ base64: croppedImage, contentType: defaultMimeType });
     }
   };
+
   const handleConfirm = () => {
     if (ctx && canvasSize && Object.getOwnPropertyNames(canvasSize) && imageState && imageState.responsiveImageData && canvas) {
-      const topLayer: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
-      colorUtils.replaceColor(topLayer, BrushColor, colorUtils.color.black);
+      const canvasLayer: ImageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
+      const layerWithRemovedOpacity = colorUtils.replaceColor(canvasLayer, BrushColor, colorUtils.color.black);
       const bottomLayer = new Image();
       bottomLayer.onload = () => {
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = 'source-over';
-        ctx.putImageData(topLayer, 0, 0);
+        ctx.putImageData(layerWithRemovedOpacity, 0, 0);
         ctx.globalCompositeOperation = 'source-in';
         ctx.drawImage(bottomLayer, 0, 0, canvasSize.width, canvasSize.height);
         const resultOfCroppedCanvas = canvas.toDataURL(defaultMimeType);
-        setCroppedImage(resultOfCroppedCanvas);
-        sendImageToServer(resultOfCroppedCanvas)
+        sendImageForDetection(resultOfCroppedCanvas);
       };
       bottomLayer.crossOrigin = 'Anonymous';
       bottomLayer.src = imageState.responsiveImageData.orig.url;
@@ -113,9 +113,16 @@ export default ({ imageState, onDismiss }: Props) => {
       <Container>
         <CloseButton type="button" value="Close" onClick={onDismiss} />
         <ConfirmButton type="button" value="Confirm" onClick={handleConfirm} />
-        <CanvasContainer ref={onContainerSet}>
-          {imageState && imageState.responsiveImageData && <CanvasWithImage imageUrl={imageState.responsiveImageData.orig.url} ref={onCanvasSet} />}
-        </CanvasContainer>
+        {imageState && imageState.responsiveImageData && (
+          <WorkspaceContainer>
+            <Img
+              onLoad={onImageSet}
+              src={imageState.responsiveImageData.orig.url}
+              alt={imageState.responsiveImageData.orig.key}
+            />
+            <Canvas ref={onCanvasSet} />
+          </WorkspaceContainer>
+        )}
       </Container>
       <FullPageDimmer zIndex={zIndexDimmer} />
     </>
